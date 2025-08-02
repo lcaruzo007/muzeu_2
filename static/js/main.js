@@ -1,4 +1,4 @@
-// Main JavaScript file for Museu project
+// Main JavaScript file for Muzeu project - Software para gerenciamento de história e patrimônio cultural em Muzambinho-MG
 
 document.addEventListener('DOMContentLoaded', function() {
     // Auto-hide alert messages after 5 seconds

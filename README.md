@@ -1,6 +1,6 @@
-# Projeto Museu
+# Muzeu - Software para gerenciamento de história e patrimônio cultural
 
-Sistema de gerenciamento para museu desenvolvido em Django.
+Sistema de gerenciamento de história e patrimônio cultural em Muzambinho-MG desenvolvido em Django.
 
 ## 📋 Pré-requisitos
 
@@ -128,6 +128,7 @@ Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes
 
 ## 📞 Contato
 
-Seu Nome - seu-email@example.com
+Projeto Muzeu - Sistema de gerenciamento de história e patrimônio cultural
+Muzambinho - MG
 
-Link do Projeto: [https://github.com/usuario/muzeu_2](https://github.com/usuario/muzeu_2)
+Link do Projeto: [https://github.com/lcaruzo007/muzeu_2](https://github.com/lcaruzo007/muzeu_2)
