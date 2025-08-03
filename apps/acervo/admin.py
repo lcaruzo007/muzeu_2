@@ -24,7 +24,10 @@ class ItemAcervoAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Informações Básicas', {
-            'fields': ('titulo', 'numero_registro', 'categoria', 'descricao', 'imagem')
+            'fields': ('titulo', 'numero_registro', 'categoria', 'tipo_item', 'descricao', 'imagem')
+        }),
+        ('Arquivos', {
+            'fields': ('arquivo_audio', 'arquivo_documento')
         }),
         ('Detalhes Históricos', {
             'fields': ('origem', 'data_aproximada', 'doador', 'data_aquisicao')
@@ -36,7 +39,7 @@ class ItemAcervoAdmin(admin.ModelAdmin):
             'fields': ('localizacao', 'valor_estimado')
         }),
         ('Observações', {
-            'fields': ('observacoes', 'ativo')
+            'fields': ('observacoes', 'ativo', 'disponivel_exposicao')
         }),
         ('Timestamps', {
             'fields': ('criado_em', 'atualizado_em'),

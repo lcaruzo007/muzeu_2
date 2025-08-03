@@ -26,7 +26,7 @@
                 <div class="galeria-info">
                     <h3>{{ obra.titulo }}</h3>
                     <p class="galeria-artista">{{ obra.artista.nome }}</p>
-                    <a href="{% url 'arte:detalhe' obra.id %}" class="btn btn-outline btn-sm">Ver Detalhes</a>
+                    <a href="{% url 'arte:obra_detail' obra.id %}" class="btn btn-outline btn-sm">Ver Detalhes</a>
                 </div>
             </div>
             {% empty %}
@@ -77,8 +77,8 @@
 {% block extra_css %}
 <style>
 .page-hero { 
-    background: linear-gradient(135deg, var(--primary), var(--secondary)); 
-    color: #fff; 
+    background: linear-gradient(160deg, var(--primary) 0%, var(--accent) 50%, var(--terra) 85%, var(--secondary) 100%); 
+    color: #fff !important; 
     padding: 48px 0 24px; 
     text-align: center; 
     position: relative;
@@ -90,6 +90,10 @@
     right: 50%;
     margin-left: -50vw;
     margin-right: -50vw;
+}
+.page-hero .section-title,
+.page-hero .section-desc {
+    color: #fff !important;
 }
 .page-hero::before {
     content: '';

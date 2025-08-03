@@ -53,9 +53,14 @@
                     <span>Personalidades</span>
                 </a>
                 
-                <a href="{% url 'acervo:lista' %}?categoria=musica-literatura" class="nav-item{% if request.GET.categoria == 'musica-literatura' %} active{% endif %}">
+                <a href="{% url 'acervo:musica' %}" class="nav-item{% if 'musica' in request.resolver_match.url_name %} active{% endif %}">
                     <i data-feather="music" class="nav-icon"></i>
-                    <span>Música & Literatura</span>
+                    <span>Música</span>
+                </a>
+                
+                <a href="{% url 'acervo:literatura' %}" class="nav-item{% if 'literatura' in request.resolver_match.url_name %} active{% endif %}">
+                    <i data-feather="book-open" class="nav-icon"></i>
+                    <span>Literatura</span>
                 </a>
                 <a href="{% url 'noticias:lista' %}" class="nav-item{% if 'noticias' in request.resolver_match.url_name %} active{% endif %}">
                     <i data-feather="file-text" class="nav-icon"></i>
@@ -67,7 +72,7 @@
                     <span>Eventos Culturais</span>
                 </a>
                 
-                <a href="#" class="nav-item">
+                <a href="{% url 'patrimonio:espacos_culturais' %}" class="nav-item{% if request.resolver_match.view_name == 'patrimonio:espacos_culturais' %} active{% endif %}">
                     <i data-feather="camera" class="nav-icon"></i>
                     <span>Espaços Culturais</span>
                 </a>

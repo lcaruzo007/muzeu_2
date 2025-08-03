@@ -22,7 +22,7 @@ class HomeView(TemplateView):
         context['noticias_recentes'] = Noticia.objects.filter(status='publicado')[:4]
         context['proximos_eventos'] = Evento.objects.filter(ativo=True)[:3]
         context['total_itens'] = ItemAcervo.objects.filter(ativo=True).count()
-        context['total_obras_arte'] = ObraArte.objects.filter(ativo=True).count() if hasattr(ObraArte, 'ativo') else ObraArte.objects.count()
+        context['total_obras_arte'] = ObraArte.objects.filter(status='ativo').count() if hasattr(ObraArte, 'status') else ObraArte.objects.count()
         context['total_personalidades'] = Personalidade.objects.filter(ativo=True).count() if hasattr(Personalidade, 'ativo') else Personalidade.objects.count()
         context['total_patrimonios'] = Patrimonio.objects.filter(status='ativo').count() if hasattr(Patrimonio, 'status') else Patrimonio.objects.count()
         context['categorias'] = CategoriaAcervo.objects.annotate(total_itens=Count('itemacervo'))
@@ -152,5 +152,78 @@ class BuscarAcervoView(TemplateView):
                 context['itens'] = page_obj
                 context['total_results'] = paginator.count
                 context['using_elasticsearch'] = False
+        
+        return context
+
+
+class MusicaView(TemplateView):
+    template_name = 'acervo/musica.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Buscar itens relacionados à música
+        # Agora busca todos os itens do acervo com tipo_item='musica'
+        context['itens_musica'] = ItemAcervo.objects.filter(
+            tipo_item='musica',
+            ativo=True
+        ).select_related('categoria').prefetch_related('fotos')
+        
+        # Buscar itens com arquivos de áudio (gravações musicais)
+        context['gravacoes_musicais'] = ItemAcervo.objects.filter(
+            arquivo_audio__isnull=False,
+            ativo=True
+        ).exclude(arquivo_audio='').select_related('categoria')[:12]
+        
+        # Buscar áudios de personalidades (depoimentos musicais)
+        from apps.personalidades.models import Personalidade
+        context['depoimentos_musicais'] = Personalidade.objects.filter(
+            Q(audio_depoimento__isnull=False) & 
+            (Q(tipo='musico') | Q(areas_atuacao__nome__icontains='música'))
+        ).exclude(audio_depoimento='').distinct()[:6]
+        
+        # Buscar obras de arte relacionadas à música
+        from apps.arte.models import ObraArte
+        context['obras_musicais'] = ObraArte.objects.filter(
+            Q(titulo__icontains='música') | Q(descricao__icontains='música'),
+            status='ativo'
+        )[:6]
+        
+        return context
+
+
+class LiteraturaView(TemplateView):
+    template_name = 'acervo/literatura.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Buscar itens relacionados à literatura
+        literatura_categoria = CategoriaAcervo.objects.filter(nome__icontains='literatura').first()
+        if literatura_categoria:
+            context['itens_literatura'] = ItemAcervo.objects.filter(
+                categoria=literatura_categoria,
+                ativo=True
+            ).select_related('categoria')[:12]
+        else:
+            context['itens_literatura'] = ItemAcervo.objects.filter(
+                Q(titulo__icontains='literatura') | Q(descricao__icontains='literatura') |
+                Q(tipo_item='livro') | Q(tipo_item='documento'),
+                ativo=True
+            ).select_related('categoria')[:12]
+        
+        # Buscar personalidades da literatura
+        from apps.personalidades.models import Personalidade
+        context['personalidades_literatura'] = Personalidade.objects.filter(
+            Q(tipo='escritor') | Q(areas_atuacao__nome__icontains='literatura')
+        ).distinct()[:6]
+        
+        # Buscar obras de arte relacionadas à literatura
+        from apps.arte.models import ObraArte
+        context['obras_literarias'] = ObraArte.objects.filter(
+            Q(titulo__icontains='literatura') | Q(descricao__icontains='literatura') |
+            Q(titulo__icontains='livro') | Q(descricao__icontains='livro'),
+            status='ativo'
+        )[:6]
         
         return context

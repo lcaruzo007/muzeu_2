@@ -37,6 +37,7 @@ class ItemAcervo(models.Model):
         ('vestuario', 'Vestuário'),
         ('ferramenta', 'Ferramenta'),
         ('livro', 'Livro'),
+        ('musica', 'Música'),
         ('outros', 'Outros'),
     ]
     
@@ -57,6 +58,8 @@ class ItemAcervo(models.Model):
     data_aquisicao = models.DateField(null=True, blank=True, verbose_name="Data de Aquisição")
     valor_estimado = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name="Valor Estimado")
     imagem = models.ImageField(upload_to='acervo/', blank=True, verbose_name="Imagem")
+    arquivo_audio = models.FileField(upload_to='acervo/audios/', blank=True, null=True, verbose_name="Arquivo de Áudio")
+    arquivo_documento = models.FileField(upload_to='acervo/documentos/', blank=True, null=True, verbose_name="Arquivo do Documento (PDF)")
     disponivel_exposicao = models.BooleanField(default=True, verbose_name="Disponível para Exposição")
     ativo = models.BooleanField(default=True, verbose_name="Ativo")
     criado_em = models.DateTimeField(auto_now_add=True)

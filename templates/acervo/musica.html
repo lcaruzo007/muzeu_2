@@ -1,0 +1,549 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Música - Acervo Musical{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+<style>
+    .hero-musica {
+        background: linear-gradient(160deg, var(--primary) 0%, var(--accent) 50%, var(--terra) 85%, var(--secondary) 100%);
+        color: white;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        width: 100vw;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+        margin-top: calc(-1 * var(--spacing-6));
+        margin-bottom: var(--spacing-8);
+        padding: var(--spacing-8) var(--spacing-6);
+        border-radius: 0 0 var(--border-radius) var(--border-radius);
+    }
+    
+    .hero-musica::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='20' cy='20' r='2'/%3E%3C/g%3E%3C/svg%3E") repeat;
+        z-index: 0;
+    }
+    
+    .hero-musica-content {
+        position: relative;
+        z-index: 1;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .hero-musica-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: var(--spacing-4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-2);
+    }
+    
+    .hero-musica-desc {
+        font-size: 1.25rem;
+        opacity: 0.9;
+        line-height: 1.6;
+    }
+    
+    .section-divider {
+        margin: var(--spacing-8) 0;
+        text-align: center;
+    }
+    
+    .section-title {
+        font-size: var(--font-size-2xl);
+        color: var(--primary);
+        margin-bottom: var(--spacing-6);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-2);
+        justify-content: center;
+    }
+    
+    .music-categories {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: var(--spacing-6);
+        margin-bottom: var(--spacing-8);
+    }
+    
+    .category-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-6);
+        box-shadow: var(--shadow);
+        transition: transform 0.3s ease;
+        text-align: center;
+    }
+    
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .category-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto var(--spacing-4);
+        color: white;
+        font-size: 24px;
+    }
+    
+    .load-music-btn {
+        background: var(--primary);
+        color: white;
+        padding: var(--spacing-2) var(--spacing-4);
+        border: none;
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-2);
+        margin: var(--spacing-4) auto 0;
+    }
+    
+    .load-music-btn:hover {
+        background: var(--accent);
+        transform: translateY(-2px);
+    }
+    
+    .items-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: var(--spacing-6);
+        margin-bottom: var(--spacing-8);
+    }
+    
+    .item-card {
+        background: white;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: transform 0.3s ease;
+    }
+    
+    .item-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .item-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        background: var(--neutral);
+    }
+    
+    .item-content {
+        padding: var(--spacing-4);
+    }
+    
+    .item-title {
+        font-weight: 600;
+        margin-bottom: var(--spacing-2);
+        color: var(--primary);
+    }
+    
+    .item-description {
+        color: var(--text);
+        font-size: var(--font-size-sm);
+        margin-bottom: var(--spacing-3);
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .item-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: var(--font-size-sm);
+        color: var(--text-secondary);
+    }
+    
+    @media (max-width: 768px) {
+        .hero-musica {
+            margin: calc(-1 * var(--spacing-4)) calc(-1 * var(--spacing-4)) var(--spacing-6);
+            padding: var(--spacing-6) var(--spacing-4);
+        }
+        
+        .hero-musica-title {
+            font-size: 2rem;
+            flex-direction: column;
+            gap: var(--spacing-1);
+        }
+        
+        .hero-musica-desc {
+            font-size: 1rem;
+        }
+        
+        .section-title {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+<script src="{% static 'js/music-player.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-musica">
+    <div class="hero-musica-content">
+        <h1 class="hero-musica-title">
+            <i data-feather="music"></i>
+            Acervo Musical
+        </h1>
+        <p class="hero-musica-desc">
+            Explore a rica tradição musical de Muzambinho através de nossa coleção de instrumentos, 
+            depoimentos, gravações históricas e documentos que preservam a memória musical da nossa cidade.
+        </p>
+    </div>
+</section>
+
+<!-- Player de Música -->
+<div id="musicPlayer"></div>
+
+<!-- Categorias Musicais -->
+<div class="section-divider">
+    <h2 class="section-title">
+        <i data-feather="headphones"></i>
+        Categorias Musicais
+    </h2>
+</div>
+
+<div class="music-categories">
+    <div class="category-card">
+        <div class="category-icon">
+            <i data-feather="mic"></i>
+        </div>
+        <h3>Depoimentos Musicais</h3>
+        <p>Ouça depoimentos de músicos e personalidades que marcaram a história musical de Muzambinho.</p>
+        <button class="load-music-btn" onclick="loadDepoimentos()">
+            <i data-feather="play"></i> Carregar Depoimentos
+        </button>
+    </div>
+    
+    <div class="category-card">
+        <div class="category-icon">
+            <i data-feather="radio"></i>
+        </div>
+        <h3>Música Tradicional</h3>
+        <p>Gravações históricas de música tradicional e folclórica da região de Muzambinho.</p>
+        <button class="load-music-btn" onclick="loadTradicional()">
+            <i data-feather="play"></i> Carregar Tradicionais
+        </button>
+    </div>
+    
+    <div class="category-card">
+        <div class="category-icon">
+            <i data-feather="users"></i>
+        </div>
+        <h3>Entrevistas</h3>
+        <p>Entrevistas exclusivas com artistas, compositores e personalidades musicais locais.</p>
+        <button class="load-music-btn" onclick="loadEntrevistas()">
+            <i data-feather="play"></i> Carregar Entrevistas
+        </button>
+    </div>
+</div>
+
+<!-- Instrumentos Musicais -->
+{% if itens_musica %}
+<div class="section-divider">
+    <h2 class="section-title">
+        <i data-feather="music"></i>
+        Instrumentos e Objetos Musicais
+    </h2>
+</div>
+
+<div class="items-grid">
+    {% for item in itens_musica %}
+    <div class="item-card">
+        {% if item.fotos.first %}
+            <img src="{{ item.fotos.first.imagem.url }}" alt="{{ item.titulo }}" class="item-image">
+        {% else %}
+            <div class="item-image" style="background: linear-gradient(135deg, var(--neutral), var(--neutral-light)); display: flex; align-items: center; justify-content: center; color: var(--text-secondary);">
+                <i data-feather="music" style="width: 48px; height: 48px;"></i>
+            </div>
+        {% endif %}
+        <div class="item-content">
+            <h3 class="item-title">{{ item.titulo }}</h3>
+            <p class="item-description">{{ item.descricao|truncatewords:20 }}</p>
+            <div class="item-meta">
+                <span>{{ item.categoria.nome }}</span>
+                <a href="{% url 'acervo:detalhe' item.pk %}" class="btn btn-primary btn-sm">Ver Detalhes</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Gravações Musicais -->
+{% if gravacoes_musicais %}
+<div class="section-divider">
+    <h2 class="section-title">
+        <i data-feather="disc"></i>
+        Gravações Musicais
+    </h2>
+</div>
+
+<div class="items-grid">
+    {% for gravacao in gravacoes_musicais %}
+    <div class="item-card">
+        {% if gravacao.fotos.first %}
+            <img src="{{ gravacao.fotos.first.imagem.url }}" alt="{{ gravacao.titulo }}" class="item-image">
+        {% else %}
+            <div class="item-image" style="background: linear-gradient(135deg, var(--accent), var(--terra)); display: flex; align-items: center; justify-content: center; color: white;">
+                <i data-feather="disc" style="width: 48px; height: 48px;"></i>
+            </div>
+        {% endif %}
+        <div class="item-content">
+            <h3 class="item-title">{{ gravacao.titulo }}</h3>
+            <p class="item-description">{{ gravacao.descricao|truncatewords:20 }}</p>
+            <div class="item-meta">
+                <span>{{ gravacao.categoria.nome }}</span>
+                {% if gravacao.arquivo_audio %}
+                <button onclick="playAudio('{{ gravacao.arquivo_audio.url }}', '{{ gravacao.titulo }}')" class="btn btn-primary btn-sm">
+                    <i data-feather="play"></i> Ouvir
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Depoimentos de Personalidades -->
+{% if depoimentos_musicais %}
+<div class="section-divider">
+    <h2 class="section-title">
+        <i data-feather="user-check"></i>
+        Personalidades da Música
+    </h2>
+</div>
+
+<div class="items-grid">
+    {% for personalidade in depoimentos_musicais %}
+    <div class="item-card">
+        {% if personalidade.foto_principal %}
+            <img src="{{ personalidade.foto_principal.url }}" alt="{{ personalidade.nome }}" class="item-image">
+        {% else %}
+            <div class="item-image" style="background: linear-gradient(135deg, var(--neutral), var(--neutral-light)); display: flex; align-items: center; justify-content: center; color: var(--text-secondary);">
+                <i data-feather="user" style="width: 48px; height: 48px;"></i>
+            </div>
+        {% endif %}
+        <div class="item-content">
+            <h3 class="item-title">{{ personalidade.nome }}</h3>
+            <p class="item-description">{{ personalidade.resumo|truncatewords:20 }}</p>
+            <div class="item-meta">
+                <span>Músico/Compositor</span>
+                {% if personalidade.audio_depoimento %}
+                <button onclick="playAudio('{{ personalidade.audio_depoimento.url }}', '{{ personalidade.nome }}')" class="btn btn-primary btn-sm">
+                    <i data-feather="play"></i> Ouvir
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Obras de Arte Musicais -->
+{% if obras_musicais %}
+<div class="section-divider">
+    <h2 class="section-title">
+        <i data-feather="image"></i>
+        Arte e Música
+    </h2>
+</div>
+
+<div class="items-grid">
+    {% for obra in obras_musicais %}
+    <div class="item-card">
+        {% if obra.imagem %}
+            <img src="{{ obra.imagem.url }}" alt="{{ obra.titulo }}" class="item-image">
+        {% else %}
+            <div class="item-image" style="background: linear-gradient(135deg, var(--neutral), var(--neutral-light)); display: flex; align-items: center; justify-content: center; color: var(--text-secondary);">
+                <i data-feather="image" style="width: 48px; height: 48px;"></i>
+            </div>
+        {% endif %}
+        <div class="item-content">
+            <h3 class="item-title">{{ obra.titulo }}</h3>
+            <p class="item-description">{{ obra.descricao|truncatewords:20 }}</p>
+            <div class="item-meta">
+                <span>{{ obra.tipo_obra }}</span>
+                <a href="{% url 'arte:obra_detail' obra.pk %}" class="btn btn-primary btn-sm">Ver Obra</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<script>
+// Aguardar o carregamento do DOM e do music player
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar ícones
+    feather.replace();
+    
+    // Aguardar a criação do music player
+    setTimeout(() => {
+        if (window.musicPlayer) {
+            initializeMusicPlaylists();
+            // Carregar automaticamente as gravações do acervo como playlist
+            if (window.gravicoesAcervo && window.gravicoesAcervo.length > 0) {
+                window.musicPlayer.loadPlaylist(window.gravicoesAcervo);
+            }
+        }
+    }, 100);
+});
+
+function initializeMusicPlaylists() {
+    // Depoimentos musicais
+    window.depoimentos = [
+        {% for personalidade in depoimentos_musicais %}
+        {% if personalidade.audio_depoimento %}
+        {
+            title: "Depoimento - {{ personalidade.nome|escapejs }}",
+            artist: "{{ personalidade.nome|escapejs }}",
+            album: "Depoimentos Musicais",
+            url: "{{ personalidade.audio_depoimento.url }}",
+            duration: "0:00"
+        },
+        {% endif %}
+        {% endfor %}
+    ];
+    
+    // Gravações musicais do acervo
+    window.gravicoesAcervo = [
+        {% for gravacao in gravacoes_musicais %}
+        {% if gravacao.arquivo_audio %}
+        {
+            title: "{{ gravacao.titulo|escapejs }}",
+            artist: "Acervo Musical",
+            album: "{{ gravacao.categoria.nome|escapejs }}",
+            url: "{{ gravacao.arquivo_audio.url }}",
+            duration: "0:00"
+        },
+        {% endif %}
+        {% endfor %}
+    ];
+    
+    // Música tradicional (exemplo - você pode expandir com dados reais)
+    window.tradicional = [
+        {
+            title: "Cantiga de Roda Tradicional",
+            artist: "Grupo Folclórico de Muzambinho",
+            album: "Tradições Musicais",
+            url: "/media/musicas/cantiga_roda.mp3",
+            duration: "3:20"
+        },
+        {
+            title: "Moda de Viola",
+            artist: "Violeiros de Muzambinho",
+            album: "Raízes Musicais",
+            url: "/media/musicas/moda_viola.mp3",
+            duration: "4:45"
+        }
+    ];
+    
+    // Entrevistas (exemplo)
+    window.entrevistas = [
+        {
+            title: "Entrevista - Maestro da Banda Municipal",
+            artist: "Rádio Muzambinho",
+            album: "Entrevistas Históricas",
+            url: "/media/entrevistas/maestro_banda.mp3",
+            duration: "15:30"
+        }
+    ];
+}
+
+function loadDepoimentos() {
+    if (window.musicPlayer && window.depoimentos && window.depoimentos.length > 0) {
+        window.musicPlayer.loadPlaylist(window.depoimentos);
+        showMessage('Depoimentos musicais carregados!', 'success');
+    } else {
+        showMessage('Nenhum depoimento musical disponível', 'warning');
+    }
+}
+
+function loadTradicional() {
+    if (window.musicPlayer && window.tradicional) {
+        window.musicPlayer.loadPlaylist(window.tradicional);
+        showMessage('Música tradicional carregada!', 'success');
+    }
+}
+
+function loadEntrevistas() {
+    if (window.musicPlayer && window.entrevistas) {
+        window.musicPlayer.loadPlaylist(window.entrevistas);
+        showMessage('Entrevistas carregadas!', 'success');
+    }
+}
+
+function playAudio(audioUrl, title) {
+    if (window.musicPlayer) {
+        const singleTrack = [{
+            title: title,
+            artist: "Depoimento",
+            album: "Acervo Musical",
+            url: audioUrl,
+            duration: "0:00"
+        }];
+        window.musicPlayer.loadPlaylist(singleTrack);
+        setTimeout(() => {
+            window.musicPlayer.play();
+        }, 500);
+    }
+}
+
+function showMessage(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} position-fixed`;
+    toast.style.top = '20px';
+    toast.style.right = '20px';
+    toast.style.zIndex = '9999';
+    toast.style.padding = '12px 20px';
+    toast.style.borderRadius = '8px';
+    toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+    toast.innerHTML = `
+        <i data-feather="${type === 'success' ? 'check-circle' : type === 'warning' ? 'alert-triangle' : 'info'}"></i>
+        ${message}
+    `;
+    
+    document.body.appendChild(toast);
+    feather.replace();
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+</script>
+{% endblock %}

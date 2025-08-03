@@ -6,14 +6,20 @@
 {% block extra_css %}
 <style>
     .hero-contato {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        background: linear-gradient(160deg, var(--primary) 0%, var(--accent) 50%, var(--terra) 85%, var(--secondary) 100%);
         color: white;
         text-align: center;
         position: relative;
         overflow: hidden;
-        margin: calc(-1 * var(--spacing-6)) calc(-1 * var(--spacing-6)) var(--spacing-8);
+        width: 100vw;
+        max-width: 100vw;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
         padding: var(--spacing-8) var(--spacing-6);
         border-radius: 0 0 var(--border-radius) var(--border-radius);
+
     }
     
     .hero-contato::before {
@@ -52,7 +58,14 @@
     
     @media (max-width: 768px) {
         .hero-contato {
-            margin: calc(-1 * var(--spacing-4)) calc(-1 * var(--spacing-4)) var(--spacing-6);
+            left: 50%;
+            right: 50%;
+            margin-left: -50vw;
+            margin-right: -50vw;
+            width: 100vw;
+            max-width: 100vw;
+            border-radius: 0;
+            margin-bottom: var(--spacing-6);
             padding: var(--spacing-6) var(--spacing-4);
         }
         
@@ -68,10 +81,11 @@
     }
     
     .contato-container {
-        display: grid;</div>
-        grid-template-columns: 1fr 1fr;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
         gap: var(--spacing-8);
         margin-top: var(--spacing-6);
+        width: 100%;
     }
     
     .contato-form-section,
@@ -431,13 +445,12 @@
             </form>
         </div>
         
-        <!-- Informações de Contato -->
+        <!-- Informações de Contato - Museu -->
         <div class="contato-info-section">
             <h2 class="section-title">
                 <i data-feather="map-pin"></i>
-                Informações de Contato
+                Museu Municipal Muzambinho
             </h2>
-            
             <div class="info-item">
                 <div class="info-icon">
                     <i data-feather="map-pin"></i>
@@ -449,7 +462,6 @@
                     CEP: 37890-000</p>
                 </div>
             </div>
-            
             <div class="info-item">
                 <div class="info-icon">
                     <i data-feather="phone"></i>
@@ -460,18 +472,15 @@
                     (35) 99999-9999 (WhatsApp)</p>
                 </div>
             </div>
-            
             <div class="info-item">
                 <div class="info-icon">
                     <i data-feather="mail"></i>
                 </div>
                 <div class="info-content">
                     <h4>E-mail</h4>
-                    <p>
-                    cultura@muzambinho.mg.gov.br</p>
+                    <p>cultura@muzambinho.mg.gov.br</p>
                 </div>
             </div>
-            
             <div class="info-item">
                 <div class="info-icon">
                     <i data-feather="globe"></i>
@@ -480,11 +489,8 @@
                     <h4>Redes Sociais</h4>
                     <p>@museumuzminho<br>
                     Museu Municipal Muzambinho</p>
-                    
                 </div>
             </div>
-            
-            <!-- Horários de Funcionamento -->
             <div class="horarios-funcionamento">
                 <h4>
                     <i data-feather="clock"></i>
@@ -499,10 +505,62 @@
                     <span>Fechado</span>
                 </div>
             </div>
-            
-            <!-- Mapa (Google Maps embed) -->
             <div class="mapa-container">
                 <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3130.1879637921866!2d-46.52359292545939!3d-21.36680608465349!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94b63fbb0d5f4ff5%3A0x5b5ffde06be58161!2sMuseu%20Municipal%20Francisco%20Leonardo%20Ceravolo!5e1!3m2!1spt-BR!2sbr!4v1754180168159!5m2!1spt-BR!2sbr" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+        </div>
+        
+        <!-- Informações de Contato - Casa da Cultura -->
+        <div class="contato-info-section">
+            <h2 class="section-title">
+                <i data-feather="home"></i>
+                Casa da Cultura
+            </h2>
+            <div class="info-item">
+                <div class="info-icon">
+                    <i data-feather="map-pin"></i>
+                </div>
+                <div class="info-content">
+                    <h4>Endereço</h4>
+                    <p>Rua Dr. Américo Luz, 456<br>
+                    Centro - Muzambinho/MG<br>
+                    CEP: 37890-000</p>
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-icon">
+                    <i data-feather="phone"></i>
+                </div>
+                <div class="info-content">
+                    <h4>Telefone</h4>
+                    <p>(35) 3571-5678</p>
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-icon">
+                    <i data-feather="mail"></i>
+                </div>
+                <div class="info-content">
+                    <h4>E-mail</h4>
+                    <p>casadacultura@muzambinho.mg.gov.br</p>
+                </div>
+            </div>
+            <div class="horarios-funcionamento">
+                <h4>
+                    <i data-feather="clock"></i>
+                    Horários de Funcionamento
+                </h4>
+                <div class="horario-item">
+                    <span class="horario-dia">Segunda a Sexta</span>
+                    <span>8h às 17h</span>
+                </div>
+                <div class="horario-item">
+                    <span class="horario-dia">Sábado, Domingo e Feriados</span>
+                    <span>Fechado</span>
+                </div>
+            </div>
+            <div class="mapa-container">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3130.123456789!2d-46.52000000000000!3d-21.36500000000000!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94b63fbb0d5f4ff5%3A0x1234567890abcdef!2sCasa%20da%20Cultura!5e1!3m2!1spt-BR!2sbr!4v1754180168159!5m2!1spt-BR!2sbr" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
             </div>
         </div>
     </div>

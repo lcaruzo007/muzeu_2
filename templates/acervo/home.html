@@ -80,14 +80,24 @@
             <a href="{% url 'arte:galeria' %}" class="btn btn-primary btn-sm">Ver Galeria</a>
         </div>
         
-        <!-- Música & Literatura -->
+        <!-- Música -->
         <div class="cultural-card card fade-in">
             <div class="cultural-icon">
                 <i data-feather="music"></i>
             </div>
-            <h3>Música & Literatura</h3>
-            <p>Compositores, poetas e escritores que enriquecem nossa cultura</p>
-            <a href="{% url 'acervo:lista' %}?categoria=musica-literatura" class="btn btn-primary btn-sm">Explorar</a>
+            <h3>Música</h3>
+            <p>Instrumentos, depoimentos e tradições musicais de Muzambinho</p>
+            <a href="{% url 'acervo:musica' %}" class="btn btn-primary btn-sm">Explorar Música</a>
+        </div>
+        
+        <!-- Literatura -->
+        <div class="cultural-card card fade-in">
+            <div class="cultural-icon">
+                <i data-feather="book-open"></i>
+            </div>
+            <h3>Literatura</h3>
+            <p>Livros, documentos e obras que preservam nossa memória escrita</p>
+            <a href="{% url 'acervo:literatura' %}" class="btn btn-primary btn-sm">Explorar Literatura</a>
         </div>
     </div>
 </section>
