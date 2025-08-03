@@ -1,0 +1,545 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ artista.nome }} - Artistas{% endblock %}
+
+{% block extra_css %}
+<style>
+    .artista-hero {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
+        color: white;
+        padding: var(--spacing-8) 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .artista-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='50' height='50' viewBox='0 0 50 50' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='25' cy='25' r='3'/%3E%3C/g%3E%3C/svg%3E") repeat;
+    }
+    
+    .artista-container {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: var(--spacing-8);
+        margin: var(--spacing-8) 0;
+    }
+    
+    .artista-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-6);
+    }
+    
+    .artista-foto {
+        background: white;
+        padding: var(--spacing-4);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        text-align: center;
+    }
+    
+    .artista-foto-img {
+        width: 100%;
+        height: 250px;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        margin-bottom: var(--spacing-3);
+    }
+    
+    .artista-foto-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .placeholder-artista {
+        background: linear-gradient(135deg, var(--neutral-light), var(--neutral));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-secondary);
+        font-size: 4rem;
+    }
+    
+    .artista-info-card {
+        background: white;
+        padding: var(--spacing-5);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+    }
+    
+    .artista-content {
+        background: white;
+        padding: var(--spacing-6);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+    }
+    
+    .info-item-artista {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-2);
+        padding: var(--spacing-2) 0;
+        border-bottom: 1px solid var(--neutral-light);
+    }
+    
+    .info-item-artista:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label-artista {
+        font-weight: 600;
+        color: var(--text-primary);
+        min-width: 80px;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-1);
+    }
+    
+    .info-valor-artista {
+        color: var(--text-secondary);
+        flex: 1;
+    }
+    
+    .tecnicas-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-2);
+        margin-top: var(--spacing-3);
+    }
+    
+    .tecnica-badge {
+        background: var(--accent-light);
+        color: var(--accent);
+        padding: var(--spacing-1) var(--spacing-2);
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+    
+    .artista-biografia {
+        background: var(--nature-light);
+        border: 2px solid var(--nature);
+        padding: var(--spacing-5);
+        border-radius: var(--border-radius);
+        margin-bottom: var(--spacing-6);
+    }
+    
+    .artista-biografia h3 {
+        color: var(--nature);
+        margin-bottom: var(--spacing-3);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-2);
+    }
+    
+    .artista-biografia p {
+        line-height: 1.7;
+        color: var(--text-primary);
+    }
+    
+    .obras-artista {
+        margin-top: var(--spacing-6);
+    }
+    
+    .obras-grid-artista {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: var(--spacing-5);
+        margin-top: var(--spacing-4);
+    }
+    
+    .obra-card-artista {
+        background: white;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .obra-card-artista:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+    }
+    
+    .obra-imagem-artista {
+        width: 100%;
+        height: 160px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .obra-imagem-artista img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .obra-card-artista:hover .obra-imagem-artista img {
+        transform: scale(1.05);
+    }
+    
+    .obra-info-artista {
+        padding: var(--spacing-4);
+    }
+    
+    .obra-titulo-artista {
+        font-weight: 600;
+        margin-bottom: var(--spacing-2);
+        line-height: 1.3;
+        color: var(--text-primary);
+    }
+    
+    .obra-detalhes-artista {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+    
+    .obra-tecnica-artista {
+        background: var(--primary-light);
+        color: var(--primary);
+        padding: var(--spacing-1) var(--spacing-2);
+        border-radius: 10px;
+        font-size: 0.8rem;
+    }
+    
+    .breadcrumb {
+        background: var(--neutral-light);
+        padding: var(--spacing-3);
+        margin-bottom: var(--spacing-4);
+    }
+    
+    .breadcrumb a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+    
+    .breadcrumb a:hover {
+        text-decoration: underline;
+    }
+    
+    .btn-voltar {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--spacing-2);
+        background: var(--primary);
+        color: white;
+        padding: var(--spacing-2) var(--spacing-4);
+        border-radius: var(--border-radius);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        margin-bottom: var(--spacing-6);
+    }
+    
+    .btn-voltar:hover {
+        background: var(--secondary);
+        transform: translateY(-2px);
+        color: white;
+    }
+    
+    .estatisticas-artista {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--spacing-3);
+        margin-bottom: var(--spacing-4);
+    }
+    
+    .stat-artista {
+        text-align: center;
+        padding: var(--spacing-3);
+        background: var(--neutral-light);
+        border-radius: var(--border-radius);
+    }
+    
+    .stat-numero-artista {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary);
+        display: block;
+    }
+    
+    .stat-label-artista {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        margin-top: var(--spacing-1);
+    }
+    
+    @media (max-width: 768px) {
+        .artista-container {
+            grid-template-columns: 1fr;
+            gap: var(--spacing-6);
+        }
+        
+        .artista-sidebar {
+            order: -1;
+        }
+        
+        .artista-foto-img {
+            height: 200px;
+        }
+        
+        .obras-grid-artista {
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: var(--spacing-4);
+        }
+        
+        .estatisticas-artista {
+            grid-template-columns: 1fr;
+        }
+        
+        .artista-hero h1 {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="breadcrumb">
+    <div class="container">
+        <a href="{% url 'acervo:home' %}">Início</a> > 
+        <a href="{% url 'arte:galeria' %}">Arte & Exposições</a> > 
+        <a href="{% url 'arte:galeria' %}">Artistas</a> > 
+        {{ artista.nome }}
+    </div>
+</div>
+
+<!-- Hero do Artista -->
+<section class="artista-hero">
+    <div class="container">
+        <div style="position: relative; z-index: 1; text-align: center;">
+            <h1 class="text-4xl font-bold mb-4">{{ artista.nome }}</h1>
+            
+            {% if artista.tecnicas_dominadas.all %}
+                <div class="text-xl opacity-90 mb-4">
+                    {% for tecnica in artista.tecnicas_dominadas.all %}
+                        {{ tecnica.nome }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            {% if artista.nascimento or artista.falecimento %}
+                <div class="text-lg opacity-80">
+                    {% if artista.nascimento %}
+                        {{ artista.nascimento|date:"Y" }}
+                    {% endif %}
+                    {% if artista.falecimento %}
+                        - {{ artista.falecimento|date:"Y" }}
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<div class="container">
+    <a href="{% url 'arte:galeria' %}" class="btn-voltar">
+        <i data-feather="arrow-left"></i>
+        Voltar à Galeria
+    </a>
+    
+    <div class="artista-container">
+        <!-- Sidebar com Foto e Informações -->
+        <div class="artista-sidebar">
+            <!-- Foto do Artista -->
+            <div class="artista-foto">
+                <div class="artista-foto-img">
+                    {% if artista.foto %}
+                        <img src="{{ artista.foto.url }}" alt="{{ artista.nome }}">
+                    {% else %}
+                        <div class="placeholder-artista">
+                            <i data-feather="user"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                <h3 class="font-semibold text-gray-800">{{ artista.nome }}</h3>
+                {% if artista.nascimento %}
+                    <p class="text-sm text-gray-600">{{ artista.nascimento|date:"d/m/Y" }}{% if artista.falecimento %} - {{ artista.falecimento|date:"d/m/Y" }}{% endif %}</p>
+                {% endif %}
+            </div>
+            
+            <!-- Informações Básicas -->
+            <div class="artista-info-card">
+                <h3 class="text-lg font-bold mb-4">
+                    <i data-feather="info" class="inline-block mr-2"></i>
+                    Informações
+                </h3>
+                
+                {% if artista.nacionalidade %}
+                    <div class="info-item-artista">
+                        <div class="info-label-artista">
+                            <i data-feather="flag" style="width: 16px; height: 16px;"></i>
+                            Nacionalidade:
+                        </div>
+                        <div class="info-valor-artista">{{ artista.nacionalidade }}</div>
+                    </div>
+                {% endif %}
+                
+                {% if artista.cidade_natal %}
+                    <div class="info-item-artista">
+                        <div class="info-label-artista">
+                            <i data-feather="map-pin" style="width: 16px; height: 16px;"></i>
+                            Cidade:
+                        </div>
+                        <div class="info-valor-artista">{{ artista.cidade_natal }}</div>
+                    </div>
+                {% endif %}
+                
+                <div class="info-item-artista">
+                    <div class="info-label-artista">
+                        <i data-feather="image" style="width: 16px; height: 16px;"></i>
+                        Obras:
+                    </div>
+                    <div class="info-valor-artista">{{ total_obras }} peça{{ total_obras|pluralize:"s" }}</div>
+                </div>
+                
+                {% if artista.tecnicas_dominadas.all %}
+                    <div style="margin-top: var(--spacing-3);">
+                        <div class="info-label-artista mb-2">
+                            <i data-feather="brush" style="width: 16px; height: 16px;"></i>
+                            Técnicas:
+                        </div>
+                        <div class="tecnicas-badges">
+                            {% for tecnica in artista.tecnicas_dominadas.all %}
+                                <span class="tecnica-badge">{{ tecnica.nome }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Estatísticas -->
+            <div class="artista-info-card">
+                <h3 class="text-lg font-bold mb-4">
+                    <i data-feather="bar-chart-2" class="inline-block mr-2"></i>
+                    Estatísticas
+                </h3>
+                
+                <div class="estatisticas-artista">
+                    <div class="stat-artista">
+                        <span class="stat-numero-artista">{{ total_obras }}</span>
+                        <div class="stat-label-artista">Obras</div>
+                    </div>
+                    <div class="stat-artista">
+                        <span class="stat-numero-artista">{{ artista.tecnicas_dominadas.count }}</span>
+                        <div class="stat-label-artista">Técnicas</div>
+                    </div>
+                    <div class="stat-artista">
+                        <span class="stat-numero-artista">
+                            {% if artista.nascimento %}
+                                {% now "Y" as current_year %}
+                                {{ current_year|add:"-"|add:artista.nascimento.year }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </span>
+                        <div class="stat-label-artista">Anos</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Conteúdo Principal -->
+        <div class="artista-content">
+            <!-- Biografia -->
+            {% if artista.biografia %}
+                <div class="artista-biografia">
+                    <h3>
+                        <i data-feather="book-open"></i>
+                        Biografia
+                    </h3>
+                    <p>{{ artista.biografia|linebreaks }}</p>
+                </div>
+            {% endif %}
+            
+            <!-- Trajetória Artística -->
+            {% if artista.trajetoria_artistica %}
+                <div class="artista-biografia" style="background: var(--primary-light); border-color: var(--primary);">
+                    <h3 style="color: var(--primary);">
+                        <i data-feather="trending-up"></i>
+                        Trajetória Artística
+                    </h3>
+                    <p>{{ artista.trajetoria_artistica|linebreaks }}</p>
+                </div>
+            {% endif %}
+            
+            <!-- Principais Obras -->
+            {% if obras %}
+                <div class="obras-artista">
+                    <h2 class="text-2xl font-bold mb-4">
+                        <i data-feather="grid" class="inline-block mr-2"></i>
+                        Obras do Artista
+                    </h2>
+                    
+                    <div class="obras-grid-artista">
+                        {% for obra in obras %}
+                            <a href="{% url 'arte:obra_detail' obra.id %}" class="obra-card-artista">
+                                <div class="obra-imagem-artista">
+                                    {% if obra.imagem %}
+                                        <img src="{{ obra.imagem.url }}" alt="{{ obra.titulo }}">
+                                    {% else %}
+                                        <div class="bg-gray-200 h-full flex items-center justify-center text-gray-400">
+                                            <i data-feather="image" style="width: 40px; height: 40px;"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="obra-info-artista">
+                                    <div class="obra-titulo-artista">{{ obra.titulo }}</div>
+                                    <div class="obra-detalhes-artista">
+                                        {% if obra.ano_criacao %}
+                                            <span>{{ obra.ano_criacao }}</span>
+                                        {% endif %}
+                                        {% if obra.tecnica %}
+                                            <span class="obra-tecnica-artista">{{ obra.tecnica.nome }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Paginação das Obras -->
+                    {% if obras.has_other_pages %}
+                        <div class="flex justify-center mt-6">
+                            <div class="flex gap-2 items-center">
+                                {% if obras.has_previous %}
+                                    <a href="?page=1" class="px-3 py-2 border rounded hover:bg-gray-50">‹‹ Primeira</a>
+                                    <a href="?page={{ obras.previous_page_number }}" class="px-3 py-2 border rounded hover:bg-gray-50">‹ Anterior</a>
+                                {% endif %}
+                                
+                                <span class="px-3 py-2 bg-primary text-white rounded">
+                                    {{ obras.number }} de {{ obras.paginator.num_pages }}
+                                </span>
+                                
+                                {% if obras.has_next %}
+                                    <a href="?page={{ obras.next_page_number }}" class="px-3 py-2 border rounded hover:bg-gray-50">Próxima ›</a>
+                                    <a href="?page={{ obras.paginator.num_pages }}" class="px-3 py-2 border rounded hover:bg-gray-50">Última ››</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="text-center py-12">
+                    <i data-feather="image" class="mx-auto mb-4" style="width: 64px; height: 64px; color: var(--text-secondary);"></i>
+                    <h3 class="text-xl font-semibold mb-2">Nenhuma obra disponível</h3>
+                    <p class="text-gray-600">As obras deste artista ainda não foram catalogadas.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,727 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ personalidade.nome }} - Personalidades{% endblock %}
+
+{% block extra_css %}
+<style>
+    .personalidade-hero {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        color: white;
+        padding: var(--spacing-8) 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .personalidade-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='20' cy='20' r='2'/%3E%3C/g%3E%3C/svg%3E") repeat;
+    }
+    
+    .personalidade-content {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .personalidade-foto {
+        width: 240px;
+        aspect-ratio: 4/5;
+        border-radius: 18px;
+        overflow: visible;
+        margin: 0 auto var(--spacing-6);
+        background: repeating-linear-gradient(135deg, #f8e7c0 0 8px, #fff8e1 8px 16px);
+        box-shadow:
+            0 4px 24px 0 rgba(0,0,0,0.12),
+            0 0 0 8px #d4af37,
+            0 0 0 14px #8b4513,
+            0 0 0 18px #d4af37,
+            0 0 0 22px #fff8e1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    .personalidade-foto img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        object-position: center top;
+        border-radius: 12px;
+        background: #fff8e1;
+        filter: sepia(8%) contrast(1.08) brightness(1.04);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .personalidade-info {
+        text-align: center;
+        max-width: 800px;
+        margin: 0 auto;
+        margin-top: var(--spacing-6);
+    }
+
+    .personalidade-info h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--primary);
+        text-shadow: 1px 2px 8px rgba(212,175,55,0.10);
+        margin-bottom: var(--spacing-2);
+        letter-spacing: 1px;
+    }
+    
+    .areas-badges {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: var(--spacing-2);
+        margin: var(--spacing-4) 0;
+    }
+
+    .area-badge {
+        background: linear-gradient(90deg, #d4af37 0%, #8b4513 100%);
+        color: #fff;
+        padding: 6px 18px;
+        border-radius: 20px;
+        font-size: 1rem;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(212,175,55,0.08);
+        border: 1.5px solid #fff8e1;
+        letter-spacing: 0.5px;
+    }
+    
+    .section-card {
+        background: #fffefb;
+        margin: var(--spacing-6) 0;
+        padding: var(--spacing-6);
+        border-radius: 18px;
+        box-shadow: 0 2px 16px 0 rgba(0,0,0,0.08);
+        border: 2.5px solid #d4af37;
+        position: relative;
+    }
+    
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-2);
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #8b4513;
+        margin-bottom: var(--spacing-4);
+        padding-bottom: var(--spacing-2);
+        border-bottom: 2px solid #d4af37;
+        letter-spacing: 0.5px;
+        text-shadow: 0 1px 6px rgba(212,175,55,0.08);
+    }
+    
+    .biografia-text {
+        line-height: 1.8;
+        font-size: 1.1rem;
+        color: var(--text-primary);
+        text-align: justify;
+    }
+    
+    .legado-text {
+        line-height: 1.7;
+        font-size: 1rem;
+        color: var(--text-secondary);
+        font-style: italic;
+        background: var(--neutral-light);
+        padding: var(--spacing-4);
+        border-radius: var(--border-radius);
+        border-left: 4px solid var(--accent);
+    }
+    
+    .contribuicoes-grid {
+        display: grid;
+        gap: var(--spacing-4);
+    }
+    
+    .contribuicao-item {
+        background: var(--neutral-light);
+        padding: var(--spacing-4);
+        border-radius: var(--border-radius);
+        border-left: 4px solid var(--secondary);
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .contribuicao-item:hover {
+        transform: translateX(5px);
+        box-shadow: var(--shadow);
+    }
+    
+    .contribuicao-ano {
+        font-weight: bold;
+        color: var(--secondary);
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-1);
+    }
+    
+    .contribuicao-tipo {
+        background: var(--secondary);
+        color: white;
+        padding: var(--spacing-1) var(--spacing-2);
+        border-radius: 12px;
+        font-size: 0.8rem;
+        position: absolute;
+        top: var(--spacing-3);
+        right: var(--spacing-3);
+    }
+    
+    .contribuicao-titulo {
+        font-weight: semibold;
+        margin: var(--spacing-2) 0;
+        color: var(--text-primary);
+        font-size: 1.1rem;
+    }
+    
+    .contribuicao-descricao {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-top: var(--spacing-2);
+    }
+    
+    .citacoes-container {
+        display: grid;
+        gap: var(--spacing-4);
+    }
+    
+    .citacao-item {
+        background: linear-gradient(135deg, var(--accent-light), rgba(255,255,255,0.8));
+        padding: var(--spacing-5);
+        border-radius: var(--border-radius);
+        position: relative;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .citacao-item:hover {
+        transform: translateY(-5px);
+    }
+    
+    .citacao-item::before {
+        content: '"';
+        position: absolute;
+        top: -10px;
+        left: 20px;
+        font-size: 4rem;
+        color: var(--accent);
+        font-family: Georgia, serif;
+        line-height: 1;
+    }
+    
+    .citacao-texto {
+        font-style: italic;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: var(--spacing-2);
+        color: var(--text-primary);
+        padding-left: var(--spacing-4);
+    }
+    
+    .citacao-autor {
+        text-align: right;
+        font-weight: bold;
+        color: var(--accent);
+    }
+    
+    .citacao-fonte {
+        text-align: right;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin-top: var(--spacing-1);
+    }
+    
+    .breadcrumb {
+        background: var(--neutral-light);
+        padding: var(--spacing-3);
+        margin-bottom: var(--spacing-6);
+    }
+    
+    .breadcrumb a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+    
+    .breadcrumb a:hover {
+        text-decoration: underline;
+    }
+    
+    .btn-voltar {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--spacing-2);
+        background: var(--primary);
+        color: white;
+        padding: var(--spacing-2) var(--spacing-4);
+        border-radius: var(--border-radius);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        margin-bottom: var(--spacing-4);
+    }
+    
+    .btn-voltar:hover {
+        background: var(--secondary);
+        transform: translateY(-2px);
+        color: white;
+    }
+    
+    .placeholder-foto {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, var(--neutral), var(--neutral-light));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+    
+    .timeline-personalidade {
+        position: relative;
+        padding-left: var(--spacing-6);
+    }
+    
+    .timeline-personalidade::before {
+        content: '';
+        position: absolute;
+        left: var(--spacing-3);
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--primary);
+    }
+    
+    .timeline-item-personalidade {
+        position: relative;
+        margin-bottom: var(--spacing-6);
+        background: white;
+        padding: var(--spacing-4);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        margin-left: var(--spacing-4);
+    }
+    
+    .timeline-item-personalidade::before {
+        content: '';
+        position: absolute;
+        left: calc(-2rem - 4px);
+        top: var(--spacing-4);
+        width: 12px;
+        height: 12px;
+        background: var(--primary);
+        border-radius: 50%;
+        border: 3px solid white;
+        box-shadow: 0 0 0 3px var(--primary);
+    }
+    
+    .info-pessoal-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: var(--spacing-4);
+        margin-top: var(--spacing-4);
+    }
+    
+    .info-pessoal-item {
+        background: var(--neutral-light);
+        padding: var(--spacing-3);
+        border-radius: var(--border-radius);
+        border-left: 4px solid var(--primary);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-2);
+    }
+    
+    .info-icon {
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+    
+    .info-content h4 {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+        font-size: 0.9rem;
+    }
+    
+    .info-content p {
+        color: var(--text-secondary);
+        margin: 0;
+        font-size: 0.9rem;
+    }
+    
+    @media (max-width: 768px) {
+        .personalidade-foto {
+            width: 150px;
+            height: 180px;
+        }
+        
+        .personalidade-hero {
+            padding: var(--spacing-6) 0;
+        }
+        
+        .personalidade-info h1 {
+            font-size: 2rem;
+        }
+        
+        .areas-badges {
+            justify-content: center;
+        }
+        
+        .section-card {
+            margin: var(--spacing-4) 0;
+            padding: var(--spacing-4);
+        }
+        
+        .timeline-personalidade {
+            padding-left: var(--spacing-4);
+        }
+        
+        .timeline-item-personalidade {
+            margin-left: var(--spacing-2);
+        }
+        
+        .info-pessoal-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+<style>
+    .social-buttons {
+        display: flex;
+        gap: 1.2rem;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        margin-top: var(--spacing-2);
+    }
+    .social-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-weight: 600;
+        font-size: 1rem;
+        border: none;
+        border-radius: 30px;
+        padding: 10px 22px;
+        cursor: pointer;
+        background: #fff;
+        color: var(--primary);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.2s;
+        outline: none;
+        position: relative;
+    }
+    .social-btn i {
+        width: 20px;
+        height: 20px;
+        color: inherit;
+    }
+    .social-btn.facebook {
+        background: linear-gradient(90deg, #1877f2 60%, #4267b2 100%);
+        color: #fff;
+    }
+    .social-btn.facebook:hover {
+        background: linear-gradient(90deg, #4267b2 60%, #1877f2 100%);
+        color: #fff;
+        transform: translateY(-2px) scale(1.04);
+        box-shadow: 0 4px 16px rgba(24,119,242,0.15);
+    }
+    .social-btn.twitter {
+        background: linear-gradient(90deg, #1da1f2 60%, #0d8ddb 100%);
+        color: #fff;
+    }
+    .social-btn.twitter:hover {
+        background: linear-gradient(90deg, #0d8ddb 60%, #1da1f2 100%);
+        color: #fff;
+        transform: translateY(-2px) scale(1.04);
+        box-shadow: 0 4px 16px rgba(29,161,242,0.15);
+    }
+    .social-btn.whatsapp {
+        background: linear-gradient(90deg, #25d366 60%, #128c7e 100%);
+        color: #fff;
+    }
+    .social-btn.whatsapp:hover {
+        background: linear-gradient(90deg, #128c7e 60%, #25d366 100%);
+        color: #fff;
+        transform: translateY(-2px) scale(1.04);
+        box-shadow: 0 4px 16px rgba(37,211,102,0.15);
+    }
+    .social-btn.link {
+        background: linear-gradient(90deg, #757575 60%, #bdbdbd 100%);
+        color: #fff;
+    }
+    .social-btn.link:hover {
+        background: linear-gradient(90deg, #bdbdbd 60%, #757575 100%);
+        color: #fff;
+        transform: translateY(-2px) scale(1.04);
+        box-shadow: 0 4px 16px rgba(117,117,117,0.15);
+    }
+    .social-btn:active {
+        transform: scale(0.98);
+    }
+    @media (max-width: 600px) {
+        .social-buttons {
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        .social-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="breadcrumb">
+    <div class="container">
+        <a href="{% url 'acervo:home' %}">Início</a> > 
+        <a href="{% url 'personalidades:salao_honra' %}">Salão de Honra</a> > 
+        {{ personalidade.nome }}
+    </div>
+</div>
+
+<!-- Hero da Personalidade -->
+<section class="personalidade-hero">
+    <div class="container">
+        <div class="personalidade-content">
+            <div class="personalidade-foto">
+                {% if personalidade.foto %}
+                    <img src="{{ personalidade.foto.url }}" alt="{{ personalidade.nome }}">
+                {% else %}
+                    <div class="placeholder-foto">
+                        <i data-feather="user" style="width: 60px; height: 60px;"></i>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="personalidade-info">
+                <h1 class="text-4xl font-bold mb-2">{{ personalidade.nome }}</h1>
+                
+                {% if personalidade.areas_atuacao.all %}
+                    <div class="areas-badges">
+                        {% for area in personalidade.areas_atuacao.all %}
+                            <span class="area-badge">{{ area.nome }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                {% if personalidade.data_nascimento or personalidade.data_falecimento %}
+                    <p class="text-xl opacity-90 mt-2">
+                        {% if personalidade.data_nascimento %}
+                            {{ personalidade.data_nascimento|date:"d/m/Y" }}
+                        {% endif %}
+                        {% if personalidade.data_falecimento %}
+                            - {{ personalidade.data_falecimento|date:"d/m/Y" }}
+                        {% endif %}
+                    </p>
+                {% endif %}
+                
+                {% if personalidade.local_nascimento %}
+                    <p class="opacity-80 mt-2">
+                        <i data-feather="map-pin" class="inline-block mr-1"></i>
+                        {{ personalidade.local_nascimento }}
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+
+    
+    <!-- Biografia -->
+    {% if personalidade.biografia %}
+        <div class="section-card">
+            <h2 class="section-title">
+                <i data-feather="book-open"></i>
+                Biografia
+            </h2>
+            <div class="biografia-text">
+                {{ personalidade.biografia|linebreaks }}
+            </div>
+        </div>
+    {% endif %}
+    
+    <!-- Legado Cultural -->
+    {% if personalidade.legado_cultural %}
+        <div class="section-card">
+            <h2 class="section-title">
+                <i data-feather="star"></i>
+                Legado Cultural
+            </h2>
+            <div class="legado-text">
+                {{ personalidade.legado_cultural|linebreaks }}
+            </div>
+        </div>
+    {% endif %}
+    
+    <!-- Contribuições -->
+    {% if contribuicoes %}
+        <div class="section-card">
+            <h2 class="section-title">
+                <i data-feather="award"></i>
+                Principais Contribuições
+            </h2>
+            <div class="timeline-personalidade">
+                {% for contribuicao in contribuicoes %}
+                    <div class="timeline-item-personalidade">
+                        {% if contribuicao.tipo %}
+                            <div class="contribuicao-tipo">{{ contribuicao.get_tipo_display }}</div>
+                        {% endif %}
+                        <div class="contribuicao-ano">
+                            <i data-feather="calendar" style="width: 16px; height: 16px;"></i>
+                            {{ contribuicao.ano|default:"Data não informada" }}
+                        </div>
+                        <div class="contribuicao-titulo">{{ contribuicao.titulo }}</div>
+                        {% if contribuicao.descricao %}
+                            <div class="contribuicao-descricao">{{ contribuicao.descricao }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+    
+    <!-- Citações -->
+    {% if citacoes %}
+        <div class="section-card">
+            <h2 class="section-title">
+                <i data-feather="message-circle"></i>
+                Citações Memoráveis
+            </h2>
+            <div class="citacoes-container">
+                {% for citacao in citacoes %}
+                    <div class="citacao-item">
+                        <div class="citacao-texto">{{ citacao.citacao }}</div>
+                        {% if citacao.autor_citacao %}
+                            <div class="citacao-autor">— {{ citacao.autor_citacao }}</div>
+                        {% endif %}
+                        {% if citacao.fonte %}
+                            <div class="citacao-fonte">Fonte: {{ citacao.fonte }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+    
+    <!-- Prêmios e Reconhecimentos -->
+    {% if personalidade.premios_reconhecimentos %}
+        <div class="section-card">
+            <h2 class="section-title">
+                <i data-feather="trophy"></i>
+                Prêmios e Reconhecimentos
+            </h2>
+            <div class="legado-text">
+                {{ personalidade.premios_reconhecimentos|linebreaks }}
+            </div>
+        </div>
+    {% endif %}
+    
+    <!-- Informações Pessoais -->
+    <div class="section-card">
+        <h2 class="section-title">
+            <i data-feather="info"></i>
+            Informações Pessoais
+        </h2>
+        <div class="info-pessoal-grid">
+            {% if personalidade.data_nascimento %}
+                <div class="info-pessoal-item">
+                    <i data-feather="calendar" class="info-icon" style="width: 20px; height: 20px;"></i>
+                    <div class="info-content">
+                        <h4>Data de Nascimento</h4>
+                        <p>{{ personalidade.data_nascimento|date:"d/m/Y" }}</p>
+                    </div>
+                </div>
+            {% endif %}
+            
+            {% if personalidade.data_falecimento %}
+                <div class="info-pessoal-item">
+                    <i data-feather="calendar" class="info-icon" style="width: 20px; height: 20px;"></i>
+                    <div class="info-content">
+                        <h4>Data de Falecimento</h4>
+                        <p>{{ personalidade.data_falecimento|date:"d/m/Y" }}</p>
+                    </div>
+                </div>
+            {% endif %}
+            
+            {% if personalidade.local_nascimento %}
+                <div class="info-pessoal-item">
+                    <i data-feather="map-pin" class="info-icon" style="width: 20px; height: 20px;"></i>
+                    <div class="info-content">
+                        <h4>Local de Nascimento</h4>
+                        <p>{{ personalidade.local_nascimento }}</p>
+                    </div>
+                </div>
+            {% endif %}
+            
+            {% if personalidade.local_falecimento %}
+                <div class="info-pessoal-item">
+                    <i data-feather="map-pin" class="info-icon" style="width: 20px; height: 20px;"></i>
+                    <div class="info-content">
+                        <h4>Local de Falecimento</h4>
+                        <p>{{ personalidade.local_falecimento }}</p>
+                    </div>
+                </div>
+            {% endif %}
+            
+            {% if personalidade.areas_atuacao.all %}
+                <div class="info-pessoal-item">
+                    <i data-feather="briefcase" class="info-icon" style="width: 20px; height: 20px;"></i>
+                    <div class="info-content">
+                        <h4>Áreas de Atuação</h4>
+                        <p>
+                            {% for area in personalidade.areas_atuacao.all %}
+                                {{ area.nome }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <div class="info-pessoal-item">
+                <i data-feather="activity" class="info-icon" style="width: 20px; height: 20px;"></i>
+                <div class="info-content">
+                    <h4>Status</h4>
+                    <p>{{ personalidade.get_status_display }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Compartilhar -->
+    <div class="section-card">
+        <h2 class="section-title">
+            <i data-feather="share-2"></i>
+            Compartilhar
+        </h2>
+        <div class="social-buttons">
+            <button class="social-btn facebook" title="Compartilhar no Facebook">
+                <i data-feather="facebook"></i>
+                <span>Facebook</span>
+            </button>
+            <button class="social-btn twitter" title="Compartilhar no Twitter">
+                <i data-feather="twitter"></i>
+                <span>Twitter</span>
+            </button>
+            <button class="social-btn whatsapp" title="Compartilhar no WhatsApp">
+                <i data-feather="message-circle"></i>
+                <span>WhatsApp</span>
+            </button>
+            <button class="social-btn link" title="Copiar link">
+                <i data-feather="link"></i>
+                <span>Copiar Link</span>
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

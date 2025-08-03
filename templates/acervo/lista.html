@@ -1,0 +1,36 @@
+{# Página de lista do acervo com filtros rápidos #}
+{% extends 'base.html' %}
+
+{% block page_title %}Acervo{% endblock %}
+
+{% block content %}
+<h2 class="section-title">Acervo Completo</h2>
+{% include 'components/filtros_rapidos.html' %}
+
+<div class="acervo-list grid grid-cols-3">
+    {% for item in itens %}
+    <div class="acervo-item card fade-in">
+        <div class="acervo-image">
+            {% if item.fotos.first %}
+                <img src="{{ item.fotos.first.imagem.url }}" alt="{{ item.titulo }}">
+            {% else %}
+                <div class="placeholder-image">
+                    <i data-feather="image"></i>
+                </div>
+            {% endif %}
+            <span class="category-badge">{{ item.categoria.nome }}</span>
+        </div>
+        <div class="acervo-content">
+            <h3>{{ item.titulo }}</h3>
+            <p>{{ item.descricao|truncatewords:20 }}</p>
+            <a href="{% url 'acervo:detalhe' item.id %}" class="btn btn-primary btn-sm">Ver Detalhes</a>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <i data-feather="archive"></i>
+        <h3>Nenhum item encontrado</h3>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

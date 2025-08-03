@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Buscar no Acervo - Muzeu{% endblock %}
+
+{% block content %}
+<div class="page-search">
+    <h2 class="section-title text-center mb-8">Buscar no Acervo</h2>
+    <!-- Formulário de Busca -->
+    <form method="get" class="search-form-main mb-8">
+        <div class="grid grid-cols-3 gap-4 items-end">
+            <input type="text" name="q" class="form-input search-input w-full" placeholder="Digite sua busca..." value="{{ query }}">
+            <select name="categoria" class="form-input w-full">
+                <option value="">Todas as categorias</option>
+                {% for categoria in categorias %}
+                    <option value="{{ categoria.id }}" {% if categoria.id|stringformat:'s' == categoria_selecionada %}selected{% endif %}>{{ categoria.nome }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary w-full" style="height: 48px;">
+                <i data-feather="search"></i> Buscar
+            </button>
+        </div>
+    </form>
+
+    {% if query %}
+        <!-- Resultados da Busca -->
+        <div class="mb-6">
+            {% if using_elasticsearch %}
+                <div class="alert alert-info">
+                    <i data-feather="search"></i>
+                    Busca avançada encontrou {{ total_results }} resultado{{ total_results|pluralize }} para "{{ query }}"
+                </div>
+            {% else %}
+                <div class="alert alert-warning">
+                    <i data-feather="alert-triangle"></i>
+                    Busca básica encontrou {{ total_results|default:itens.paginator.count }} resultado{{ total_results|default:itens.paginator.count|pluralize }} para "{{ query }}"
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Resultados com Elasticsearch -->
+        {% if using_elasticsearch and items_data %}
+        <div class="grid grid-cols-2 gap-6">
+            {% for item_data in items_data %}
+                <div class="card fade-in">
+                    <div class="featured-image">
+                        {% if item_data.foto_url %}
+                            <img src="{{ item_data.foto_url }}" alt="{{ item_data.titulo }}">
+                        {% else %}
+                            <div class="placeholder-image"><i data-feather="image"></i></div>
+                        {% endif %}
+                        <span class="category-badge">{{ item_data.categoria_nome }}</span>
+                    </div>
+                    <div class="featured-content">
+                        <h3>{{ item_data.titulo }}</h3>
+                        <p>{{ item_data.descricao|truncatewords:20 }}</p>
+                        <a href="{% url 'acervo:detalhe' item_data.id %}" class="btn btn-primary btn-sm">Ver Detalhes</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Resultados padrão -->
+        {% if itens %}
+        <div class="grid grid-cols-3 gap-6">
+            {% for item in itens %}
+                <div class="card fade-in">
+                    <div class="featured-image">
+                        {% if item.fotos.first %}
+                            <img src="{{ item.fotos.first.imagem.url }}" alt="{{ item.titulo }}">
+                        {% else %}
+                            <div class="placeholder-image"><i data-feather="image"></i></div>
+                        {% endif %}
+                        <span class="category-badge">{{ item.categoria.nome }}</span>
+                    </div>
+                    <div class="featured-content">
+                        <h3>{{ item.titulo }}</h3>
+                        <p>{{ item.descricao|truncatewords:20 }}</p>
+                        <a href="{% url 'acervo:detalhe' item.id %}" class="btn btn-primary btn-sm">Ver Detalhes</a>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="empty-state text-center mt-8">
+                    <i data-feather="alert-circle" style="font-size: 3rem;"></i>
+                    <h3 class="mt-4">Nenhum resultado encontrado</h3>
+                    <p>Tente usar palavras-chave diferentes ou remover filtros.</p>
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

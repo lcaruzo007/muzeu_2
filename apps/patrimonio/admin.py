@@ -3,7 +3,7 @@ from django.utils.html import format_html
 from import_export.admin import ImportExportModelAdmin
 from import_export import resources
 from .models import (
-    Categoria, ItemAcervo, ImagemItemAcervo, Patrimonio,
+    Categoria, ItemPatrimonio, ImagemItemPatrimonio, Patrimonio,
     ImagemPatrimonio, DocumentoHistorico
 )
 
@@ -18,11 +18,11 @@ class CategoriaResource(resources.ModelResource):
         export_order = ('id', 'nome', 'descricao', 'ativa')
 
 
-class ItemAcervoResource(resources.ModelResource):
-    """Resource class for ItemAcervo import/export."""
+class ItemPatrimonioResource(resources.ModelResource):
+    """Resource class for ItemPatrimonio import/export."""
     
     class Meta:
-        model = ItemAcervo
+        model = ItemPatrimonio
         fields = (
             'id', 'nome', 'categoria', 'descricao', 'origem', 
             'numero_registro', 'estado_conservacao', 'status'
@@ -34,9 +34,9 @@ class ItemAcervoResource(resources.ModelResource):
 
 
 # Inline admins
-class ImagemItemAcervoInline(admin.TabularInline):
+class ImagemItemPatrimonioInline(admin.TabularInline):
     """Inline admin for collection item images."""
-    model = ImagemItemAcervo
+    model = ImagemItemPatrimonio
     extra = 1
     fields = ('imagem', 'legenda', 'eh_principal', 'preview')
     readonly_fields = ('preview',)
@@ -88,7 +88,7 @@ class CategoriaAdmin(ImportExportModelAdmin):
 
     def get_total_itens(self, obj):
         """Display total number of items in category."""
-        return obj.itens_acervo.count()
+        return obj.itens_patrimonio.count()
     get_total_itens.short_description = 'Total de Itens'
 
     def get_total_documentos(self, obj):
@@ -97,11 +97,11 @@ class CategoriaAdmin(ImportExportModelAdmin):
     get_total_documentos.short_description = 'Total de Documentos'
 
 
-@admin.register(ItemAcervo)
-class ItemAcervoAdmin(ImportExportModelAdmin):
-    """Admin configuration for ItemAcervo model."""
+@admin.register(ItemPatrimonio)
+class ItemPatrimonioAdmin(ImportExportModelAdmin):
+    """Admin configuration for ItemPatrimonio model."""
     
-    resource_class = ItemAcervoResource
+    resource_class = ItemPatrimonioResource
     list_display = (
         'nome', 'numero_registro', 'categoria', 'origem', 
         'estado_conservacao', 'status', 'data_adicao'
@@ -109,7 +109,7 @@ class ItemAcervoAdmin(ImportExportModelAdmin):
     list_filter = ('categoria', 'estado_conservacao', 'status', 'data_adicao')
     search_fields = ('nome', 'numero_registro', 'descricao', 'origem')
     date_hierarchy = 'data_adicao'
-    inlines = [ImagemItemAcervoInline]
+    inlines = [ImagemItemPatrimonioInline]
     fieldsets = (
         ('Informações Básicas', {
             'fields': ('nome', 'numero_registro', 'categoria', 'descricao')
@@ -131,17 +131,17 @@ class ItemAcervoAdmin(ImportExportModelAdmin):
         return super().get_queryset(request).select_related('categoria', 'usuario_adicionado')
 
 
-@admin.register(ImagemItemAcervo)
-class ImagemItemAcervoAdmin(admin.ModelAdmin):
-    """Admin configuration for ImagemItemAcervo model."""
+@admin.register(ImagemItemPatrimonio)
+class ImagemItemPatrimonioAdmin(admin.ModelAdmin):
+    """Admin configuration for ImagemItemPatrimonio model."""
     
-    list_display = ('item_acervo', 'legenda', 'eh_principal', 'get_preview', 'data_upload')
-    list_filter = ('eh_principal', 'data_upload', 'item_acervo__categoria')
-    search_fields = ('item_acervo__nome', 'legenda')
+    list_display = ('item_patrimonio', 'legenda', 'eh_principal', 'get_preview', 'data_upload')
+    list_filter = ('eh_principal', 'data_upload', 'item_patrimonio__categoria')
+    search_fields = ('item_patrimonio__nome', 'legenda')
     date_hierarchy = 'data_upload'
     fieldsets = (
         ('Imagem', {
-            'fields': ('item_acervo', 'imagem', 'legenda', 'eh_principal')
+            'fields': ('item_patrimonio', 'imagem', 'legenda', 'eh_principal')
         }),
     )
 
@@ -157,7 +157,7 @@ class ImagemItemAcervoAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         """Optimize queryset with select_related."""
-        return super().get_queryset(request).select_related('item_acervo')
+        return super().get_queryset(request).select_related('item_patrimonio')
 
 
 @admin.register(Patrimonio)

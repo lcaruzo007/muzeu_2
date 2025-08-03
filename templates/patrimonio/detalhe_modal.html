@@ -1,0 +1,77 @@
+<div class="patrimonio-detail">
+    <div class="grid grid-cols-2 gap-6">
+        <!-- Imagens e modelo 3D -->
+        <div class="patrimonio-media">
+            {% if patrimonio.imagem %}
+            <div class="patrimonio-image-main">
+                <img src="{{ patrimonio.imagem.url }}" alt="{{ patrimonio.nome }}" class="w-full rounded-lg">
+            </div>
+            {% endif %}
+            
+            {% if patrimonio.modelo_3d %}
+            <div class="model-3d-preview mt-4">
+                <button class="btn btn-accent w-full" onclick="view3DModel({{ patrimonio.id }})">
+                    <i data-feather="box"></i> Visualizar Modelo 3D
+                </button>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Informações -->
+        <div class="patrimonio-info">
+            <h3 class="text-2xl font-bold mb-4">{{ patrimonio.nome }}</h3>
+            
+            <div class="patrimonio-details">
+                <div class="detail-item">
+                    <strong>Número de Registro:</strong>
+                    <span>{{ patrimonio.numero_registro }}</span>
+                </div>
+                
+                <div class="detail-item">
+                    <strong>Categoria:</strong>
+                    <span>{{ patrimonio.get_categoria_display }}</span>
+                </div>
+                
+                {% if patrimonio.origem %}
+                <div class="detail-item">
+                    <strong>Origem:</strong>
+                    <span>{{ patrimonio.origem }}</span>
+                </div>
+                {% endif %}
+                
+                <div class="detail-item">
+                    <strong>Estado de Conservação:</strong>
+                    <span class="status-badge status-{{ patrimonio.estado_conservacao }}">
+                        {{ patrimonio.get_estado_conservacao_display }}
+                    </span>
+                </div>
+                
+                {% if patrimonio.data_aquisicao %}
+                <div class="detail-item">
+                    <strong>Data de Aquisição:</strong>
+                    <span>{{ patrimonio.data_aquisicao|date:"d/m/Y" }}</span>
+                </div>
+                {% endif %}
+                
+                {% if patrimonio.valor_estimado %}
+                <div class="detail-item">
+                    <strong>Valor Estimado:</strong>
+                    <span>R$ {{ patrimonio.valor_estimado|floatformat:2 }}</span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="patrimonio-description mt-6">
+                <h4 class="font-bold mb-2">Descrição</h4>
+                <p>{{ patrimonio.descricao|linebreaks }}</p>
+            </div>
+            
+            {% if patrimonio.observacoes %}
+            <div class="patrimonio-observations mt-6">
+                <h4 class="font-bold mb-2">Observações</h4>
+                <p>{{ patrimonio.observacoes|linebreaks }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

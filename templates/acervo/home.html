@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Início{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-content fade-in">
+        <h1 class="hero-title">Centro Cultural Digital de Muzambinho</h1>
+        <p class="hero-subtitle">Preservando e celebrando toda a riqueza cultural da nossa cidade</p>
+        
+        <!-- Estatísticas Culturais -->
+        <div class="hero-stats grid grid-cols-5">
+            <div class="stat-item card">
+                <div class="stat-icon">
+                    <i data-feather="archive"></i>
+                </div>
+                <h3>{{ total_itens }}</h3>
+                <p>Itens no Acervo</p>
+            </div>
+            
+            <div class="stat-item card">
+                <div class="stat-icon">
+                    <i data-feather="palette"></i>
+                </div>
+                <h3>{{ total_obras_arte|default:0 }}</h3>
+                <p>Obras de Arte</p>
+            </div>
+            
+            <div class="stat-item card">
+                <div class="stat-icon">
+                    <i data-feather="users"></i>
+                </div>
+                <h3>{{ total_personalidades|default:0 }}</h3>
+                <p>Personalidades</p>
+            </div>
+            
+            <div class="stat-item card">
+                <div class="stat-icon">
+                    <i data-feather="map-pin"></i>
+                </div>
+                <h3>{{ total_patrimonios|default:0 }}</h3>
+                <p>Patrimônios</p>
+            </div>
+            
+            <div class="stat-item card">
+                <div class="stat-icon">
+                    <i data-feather="calendar"></i>
+                </div>
+                <h3>{{ proximos_eventos.count }}</h3>
+                <p>Eventos Culturais</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Seções Culturais -->
+<section class="cultural-sections mb-8">
+    <h2 class="section-title">Explore Nossa Cultura</h2>
+    
+    <div class="cultural-grid grid grid-cols-3 gap-6">
+        <!-- Salão de Honra -->
+        <div class="cultural-card card fade-in">
+            <div class="cultural-icon">
+                <i data-feather="award"></i>
+            </div>
+            <h3>Salão de Honra</h3>
+            <p>Conheça as personalidades que marcaram a cultura muzambinhense</p>
+            <a href="{% url 'personalidades:salao_honra' %}" class="btn btn-primary btn-sm">Visitar Salão</a>
+        </div>
+        
+        <!-- Arte & Exposições -->
+        <div class="cultural-card card fade-in">
+            <div class="cultural-icon">
+            <i data-feather="image"></i>
+            </div>
+            <h3>Arte & Exposições</h3>
+            <p>Galeria virtual com obras de artistas locais e exposições em cartaz</p>
+            <a href="{% url 'arte:galeria' %}" class="btn btn-primary btn-sm">Ver Galeria</a>
+        </div>
+        
+        <!-- Música & Literatura -->
+        <div class="cultural-card card fade-in">
+            <div class="cultural-icon">
+                <i data-feather="music"></i>
+            </div>
+            <h3>Música & Literatura</h3>
+            <p>Compositores, poetas e escritores que enriquecem nossa cultura</p>
+            <a href="{% url 'acervo:lista' %}?categoria=musica-literatura" class="btn btn-primary btn-sm">Explorar</a>
+        </div>
+    </div>
+</section>
+
+<!-- Busca Rápida -->
+<section class="quick-search-section mb-8">
+    <div class="search-container">
+        <h2>Explore Nosso Acervo</h2>
+        <form action="{% url 'acervo:buscar' %}" method="get" class="search-form-main">
+            <div class="search-input-group">
+                <input 
+                    type="text" 
+                    name="q" 
+                    class="form-input search-input" 
+                    placeholder="Buscar por título, descrição, categoria..."
+                    value="{{ request.GET.q }}"
+                >
+                <button type="submit" class="btn btn-primary search-btn">
+                    <i data-feather="search"></i>
+                    Buscar
+                </button>
+            </div>
+        </form>
+        {% include 'components/filtros_rapidos.html' %}
+    </div>
+</section>
+
+<!-- Itens em Destaque -->
+<section class="featured-section mb-8">
+    <h2 class="section-title">Acervo em Destaque</h2>
+    <div class="featured-grid grid grid-cols-3">
+        {% for item in itens_destaque %}
+        <div class="featured-item card fade-in">
+            <div class="featured-image">
+                {% if item.fotos.first %}
+                    <img src="{{ item.fotos.first.imagem.url }}" alt="{{ item.titulo }}">
+                {% else %}
+                    <div class="placeholder-image">
+                        <i data-feather="image"></i>
+                    </div>
+                {% endif %}
+                
+                <!-- Badge da categoria -->
+                <span class="category-badge">{{ item.categoria.nome }}</span>
+            </div>
+            
+            <div class="featured-content">
+                <h3>{{ item.titulo }}</h3>
+                <p>{{ item.descricao|truncatewords:20 }}</p>
+                
+                <div class="featured-meta">
+                    <span class="meta-item">
+                        <i data-feather="calendar"></i>
+                        {{ item.data_criacao|date:"d/m/Y" }}
+                    </span>
+                    {% if item.localizacao %}
+                    <span class="meta-item">
+                        <i data-feather="map-pin"></i>
+                        {{ item.localizacao }}
+                    </span>
+                    {% endif %}
+                </div>
+                
+                <a href="{% url 'acervo:detalhe' item.id %}" class="btn btn-primary btn-sm">
+                    Ver Detalhes
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <i data-feather="archive"></i>
+            <h3>Nenhum item em destaque</h3>
+            <p>Os itens em destaque aparecerão aqui.</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="text-center mt-6">
+        <a href="{% url 'acervo:lista' %}" class="btn btn-outline">
+            Ver Todo o Acervo
+            <i data-feather="arrow-right"></i>
+        </a>
+    </div>
+</section>
+
+<!-- Exposições Ativas -->
+{% if exposicoes_ativas %}
+<section class="expositions-section mb-8">
+    <h2 class="section-title">Exposições em Cartaz</h2>
+    <div class="expositions-grid grid grid-cols-2">
+        {% for exposicao in exposicoes_ativas %}
+        <div class="exposition-card card fade-in">
+            <div class="exposition-image">
+                {% if exposicao.imagem_capa %}
+                    <img src="{{ exposicao.imagem_capa.url }}" alt="{{ exposicao.titulo }}">
+                {% else %}
+                    <div class="placeholder-image">
+                        <i data-feather="image"></i>
+                    </div>
+                {% endif %}
+                
+                <div class="exposition-type">{{ exposicao.get_tipo_display }}</div>
+            </div>
+            
+            <div class="exposition-content">
+                <h3>{{ exposicao.titulo }}</h3>
+                <p>{{ exposicao.descricao|truncatewords:15 }}</p>
+                
+                <div class="exposition-dates">
+                    <span class="date-item">
+                        <i data-feather="calendar"></i>
+                        {{ exposicao.data_inicio|date:"d/m/Y" }} - {{ exposicao.data_fim|date:"d/m/Y" }}
+                    </span>
+                    {% if exposicao.local %}
+                    <span class="date-item">
+                        <i data-feather="map-pin"></i>
+                        {{ exposicao.local }}
+                    </span>
+                    {% endif %}
+                </div>
+                
+                <button class="btn btn-accent btn-sm" data-modal="expositionModal" data-exposition-id="{{ exposicao.id }}">
+                    Saiba Mais
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Próximos Eventos -->
+{% if proximos_eventos %}
+<section class="events-section mb-8">
+    <h2 class="section-title">Próximos Eventos</h2>
+    <div class="events-list">
+        {% for evento in proximos_eventos %}
+        <div class="event-item card fade-in">
+            <div class="event-date">
+                <span class="event-day">{{ evento.data_evento|date:"d" }}</span>
+                <span class="event-month">{{ evento.data_evento|date:"M" }}</span>
+            </div>
+            
+            <div class="event-content">
+                <h4>{{ evento.titulo }}</h4>
+                <p>{{ evento.descricao|truncatewords:10 }}</p>
+                
+                <div class="event-meta">
+                    <span class="meta-item">
+                        <i data-feather="clock"></i>
+                        {{ evento.horario_inicio }}
+                    </span>
+                    {% if evento.local %}
+                    <span class="meta-item">
+                        <i data-feather="map-pin"></i>
+                        {{ evento.local }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="event-actions">
+                <button class="btn btn-primary btn-sm" data-modal="eventModal" data-event-id="{{ evento.id }}">
+                    Ver Detalhes
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Últimas Notícias -->
+{% if noticias_recentes %}
+<section class="news-section mb-8">
+    <h2 class="section-title">Últimas Notícias</h2>
+    <div class="news-grid grid grid-cols-3">
+        {% for noticia in noticias_recentes %}
+        <div class="news-item card fade-in">
+            <div class="news-image">
+                {% if noticia.imagem_destaque %}
+                    <img src="{{ noticia.imagem_destaque.url }}" alt="{{ noticia.titulo }}">
+                {% else %}
+                    <div class="placeholder-image">
+                        <i data-feather="file-text"></i>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="news-content">
+                <span class="news-category">{{ noticia.categoria.nome }}</span>
+                <h4>{{ noticia.titulo }}</h4>
+                <p>{{ noticia.resumo|truncatewords:15 }}</p>
+                
+                <div class="news-meta">
+                    <span class="meta-item">
+                        <i data-feather="calendar"></i>
+                        {{ noticia.data_publicacao|date:"d/m/Y" }}
+                    </span>
+                    <span class="meta-item">
+                        <i data-feather="user"></i>
+                        {{ noticia.autor.get_full_name }}
+                    </span>
+                </div>
+                
+                <a href="#" class="btn btn-outline btn-sm">
+                    Ler Mais
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+{% endblock %}

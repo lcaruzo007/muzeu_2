@@ -15,12 +15,33 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from apps.usuarios.dashboard_views import dashboard_view
+from apps.usuarios.ajax_views import (
+    register_user, login_user, add_patrimonio, 
+    get_patrimonio_data, list_patrimonios
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('dashboard/', dashboard_view, name='dashboard'),
+    
+    # AJAX endpoints
+    path('ajax/register/', register_user, name='ajax_register'),
+    path('ajax/login/', login_user, name='ajax_login'),
+    path('ajax/patrimonio/add/', add_patrimonio, name='ajax_add_patrimonio'),
+    path('ajax/patrimonio/<int:patrimonio_id>/', get_patrimonio_data, name='ajax_get_patrimonio'),
+    path('ajax/patrimonios/', list_patrimonios, name='ajax_list_patrimonios'),
+    
+    # Rotas principais
+    path('', include('apps.acervo.urls')),
+    path('patrimonio/', include('apps.patrimonio.urls')),
+    path('personalidades/', include('apps.personalidades.urls')),
+    path('arte/', include('apps.arte.urls')),
+    path('usuarios/', include('apps.usuarios.urls')),
+    path('noticias/', include('apps.noticias.urls', namespace='noticias')),
 ]
 
 # Servir arquivos de mídia em desenvolvimento

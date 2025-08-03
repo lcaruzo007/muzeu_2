@@ -1,0 +1,396 @@
+<!-- Modal de Patrimônio com Visualização 3D -->
+<div id="patrimonioModal" class="modal-overlay">
+    <div class="modal" style="max-width: 900px;">
+        <div class="modal-header">
+            <h2 class="modal-title">Patrimônio Histórico</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+            <div class="grid grid-cols-2">
+                <!-- Lista de Patrimônios -->
+                <div class="patrimonio-list">
+                    <h3>Patrimônios Cadastrados</h3>
+                    <div class="patrimonio-items">
+                        <!-- Item exemplo -->
+                        <div class="patrimonio-item card" data-patrimonio-id="1">
+                            <div class="patrimonio-thumb">
+                                <img src="https://via.placeholder.com/100x80" alt="Casa Colonial">
+                            </div>
+                            <div class="patrimonio-info">
+                                <h4>Casa Colonial do Século XIX</h4>
+                                <p class="patrimonio-location">Centro Histórico</p>
+                                <span class="patrimonio-status status-preservado">Preservado</span>
+                            </div>
+                        </div>
+                        
+                        <div class="patrimonio-item card" data-patrimonio-id="2">
+                            <div class="patrimonio-thumb">
+                                <img src="https://via.placeholder.com/100x80" alt="Igreja">
+                            </div>
+                            <div class="patrimonio-info">
+                                <h4>Igreja Matriz</h4>
+                                <p class="patrimonio-location">Praça Central</p>
+                                <span class="patrimonio-status status-restauracao">Em Restauração</span>
+                            </div>
+                        </div>
+                        
+                        <div class="patrimonio-item card" data-patrimonio-id="3">
+                            <div class="patrimonio-thumb">
+                                <img src="https://via.placeholder.com/100x80" alt="Estação">
+                            </div>
+                            <div class="patrimonio-info">
+                                <h4>Estação Ferroviária</h4>
+                                <p class="patrimonio-location">Bairro da Estação</p>
+                                <span class="patrimonio-status status-risco">Em Risco</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary mt-4" data-modal="addPatrimonioModal">
+                        <i data-feather="plus"></i>
+                        Adicionar Patrimônio
+                    </button>
+                </div>
+                
+                <!-- Visualizador 3D -->
+                <div class="patrimonio-viewer">
+                    <div class="patrimonio-details">
+                        <h3 id="patrimonio-title">Selecione um patrimônio</h3>
+                        <p id="patrimonio-description">Clique em um patrimônio da lista para ver os detalhes e modelo 3D.</p>
+                    </div>
+                    
+                    <!-- Container para modelo 3D -->
+                    <div class="model-3d-container" data-model-url="">
+                        <div class="model-3d-viewer"></div>
+                        <div class="model-3d-controls">
+                            <button class="btn btn-outline model-3d-reset" title="Resetar Visualização">
+                                <i data-feather="rotate-ccw"></i>
+                            </button>
+                            <button class="btn btn-outline model-3d-wireframe" title="Modo Wireframe">
+                                <i data-feather="grid"></i>
+                            </button>
+                            <button class="btn btn-outline model-3d-fullscreen" title="Tela Cheia">
+                                <i data-feather="maximize"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Placeholder quando nenhum modelo está carregado -->
+                        <div class="model-3d-placeholder">
+                            <i data-feather="cube" style="width: 48px; height: 48px;"></i>
+                            <p>Modelo 3D não disponível</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Informações técnicas -->
+                    <div class="patrimonio-specs" style="display: none;">
+                        <h4>Especificações Técnicas</h4>
+                        <div class="specs-grid">
+                            <div class="spec-item">
+                                <span class="spec-label">Ano de Construção:</span>
+                                <span class="spec-value" id="patrimonio-year">-</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Estilo Arquitetônico:</span>
+                                <span class="spec-value" id="patrimonio-style">-</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Estado de Conservação:</span>
+                                <span class="spec-value" id="patrimonio-condition">-</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Área Total:</span>
+                                <span class="spec-value" id="patrimonio-area">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Adicionar Patrimônio -->
+<div id="addPatrimonioModal" class="modal-overlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 class="modal-title">Adicionar Patrimônio</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+            <form method="POST" action="#" class="ajax-form" data-url="{% url 'ajax_add_patrimonio' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label class="form-label" for="patrimonio_nome">Nome do Patrimônio</label>
+                    <input 
+                        type="text" 
+                        name="nome" 
+                        id="patrimonio_nome"
+                        class="form-input"
+                        placeholder="Ex: Casa Colonial do Século XIX"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="patrimonio_descricao">Descrição</label>
+                    <textarea 
+                        name="descricao" 
+                        id="patrimonio_descricao"
+                        class="form-input"
+                        rows="3"
+                        placeholder="Descrição histórica e características do patrimônio"
+                        required
+                    ></textarea>
+                </div>
+                
+                <div class="grid grid-cols-2">
+                    <div class="form-group">
+                        <label class="form-label" for="patrimonio_localizacao">Localização</label>
+                        <input 
+                            type="text" 
+                            name="localizacao" 
+                            id="patrimonio_localizacao"
+                            class="form-input"
+                            placeholder="Endereço ou região"
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="patrimonio_ano">Ano de Construção</label>
+                        <input 
+                            type="number" 
+                            name="ano_construcao" 
+                            id="patrimonio_ano"
+                            class="form-input"
+                            placeholder="1850"
+                            min="1500"
+                            max="2024"
+                        >
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="patrimonio_foto">Foto Principal</label>
+                    <input 
+                        type="file" 
+                        name="foto" 
+                        id="patrimonio_foto"
+                        class="form-input"
+                        accept="image/*"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="patrimonio_modelo3d">Modelo 3D (opcional)</label>
+                    <input 
+                        type="file" 
+                        name="modelo_3d" 
+                        id="patrimonio_modelo3d"
+                        class="form-input"
+                        accept=".glb,.gltf,.obj"
+                    >
+                    <small class="form-help">Formatos suportados: .glb, .gltf, .obj</small>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline modal-close">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Adicionar Patrimônio</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.patrimonio-item {
+    display: flex;
+    gap: var(--spacing-3);
+    padding: var(--spacing-3);
+    margin-bottom: var(--spacing-3);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.patrimonio-item:hover {
+    background: var(--secondary);
+}
+
+.patrimonio-item.selected {
+    background: var(--accent);
+    color: white;
+}
+
+.patrimonio-thumb img {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: var(--radius);
+}
+
+.patrimonio-info h4 {
+    margin: 0 0 var(--spacing-1);
+    font-size: var(--font-size-base);
+    font-weight: 600;
+}
+
+.patrimonio-location {
+    font-size: var(--font-size-sm);
+    color: #6b7280;
+    margin: 0 0 var(--spacing-2);
+}
+
+.patrimonio-status {
+    padding: var(--spacing-1) var(--spacing-2);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+}
+
+.status-preservado {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.status-restauracao {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.status-risco {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.model-3d-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #6b7280;
+}
+
+.specs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-3);
+}
+
+.spec-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+}
+
+.spec-label {
+    font-size: var(--font-size-sm);
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.spec-value {
+    font-weight: 600;
+}
+
+.form-help {
+    color: #6b7280;
+    font-size: var(--font-size-sm);
+    margin-top: var(--spacing-1);
+}
+</style>
+
+<script>
+// Funcionalidade específica do modal de patrimônio
+document.addEventListener('DOMContentLoaded', function() {
+    // Seleção de patrimônio
+    document.querySelectorAll('.patrimonio-item').forEach(item => {
+        item.addEventListener('click', function() {
+            // Remover seleção anterior
+            document.querySelectorAll('.patrimonio-item').forEach(i => i.classList.remove('selected'));
+            
+            // Selecionar atual
+            this.classList.add('selected');
+            
+            // Dados mockados - em produção, viria do backend
+            const patrimonioData = {
+                1: {
+                    title: 'Casa Colonial do Século XIX',
+                    description: 'Construção típica do período colonial, com características arquitetônicas preservadas. Representa importante marco da história local.',
+                    year: '1850',
+                    style: 'Colonial Brasileiro',
+                    condition: 'Bem Preservado',
+                    area: '250m²',
+                    model3d: '/static/models/casa_colonial.glb'
+                },
+                2: {
+                    title: 'Igreja Matriz',
+                    description: 'Principal templo religioso da cidade, construído no século XVIII. Apresenta características barrocas e neoclássicas.',
+                    year: '1780',
+                    style: 'Barroco/Neoclássico',
+                    condition: 'Em Restauração',
+                    area: '800m²',
+                    model3d: null
+                },
+                3: {
+                    title: 'Estação Ferroviária',
+                    description: 'Antiga estação da ferrovia que conectava a região. Importante testemunho do desenvolvimento econômico local.',
+                    year: '1920',
+                    style: 'Eclético',
+                    condition: 'Necessita Restauro',
+                    area: '400m²',
+                    model3d: '/static/models/estacao.glb'
+                }
+            };
+            
+            const id = this.getAttribute('data-patrimonio-id');
+            const data = patrimonioData[id];
+            
+            if (data) {
+                // Atualizar informações
+                document.getElementById('patrimonio-title').textContent = data.title;
+                document.getElementById('patrimonio-description').textContent = data.description;
+                document.getElementById('patrimonio-year').textContent = data.year;
+                document.getElementById('patrimonio-style').textContent = data.style;
+                document.getElementById('patrimonio-condition').textContent = data.condition;
+                document.getElementById('patrimonio-area').textContent = data.area;
+                
+                // Mostrar especificações
+                document.querySelector('.patrimonio-specs').style.display = 'block';
+                
+                // Carregar modelo 3D se disponível
+                const container = document.querySelector('#patrimonioModal .model-3d-container');
+                const placeholder = container.querySelector('.model-3d-placeholder');
+                
+                if (data.model3d) {
+                    placeholder.style.display = 'none';
+                    container.setAttribute('data-model-url', data.model3d);
+                    // Aqui seria carregado o modelo 3D
+                } else {
+                    placeholder.style.display = 'flex';
+                }
+            }
+        });
+    });
+    
+    // Controles do visualizador 3D
+    document.querySelector('.model-3d-reset')?.addEventListener('click', function() {
+        // Reset da visualização 3D
+        console.log('Reset 3D view');
+    });
+    
+    document.querySelector('.model-3d-wireframe')?.addEventListener('click', function() {
+        // Toggle wireframe
+        console.log('Toggle wireframe');
+    });
+    
+    document.querySelector('.model-3d-fullscreen')?.addEventListener('click', function() {
+        // Fullscreen
+        console.log('Toggle fullscreen');
+    });
+});
+</script>

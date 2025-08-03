@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Centro Cultural Digital{% endblock %}</title>
+    
+    <!-- Favicon -->
+    {% load static %}
+    <link rel="icon" type="image/png" href="{% static 'logo.png' %}">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Layout Principal -->
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header" style="display: flex; justify-content: center; align-items: center; height: 180px;">
+                <img src="{% static 'logo.png' %}" alt="Logo" style="max-width: 140px; max-height: 140px; width: 100%; height: auto; display: block;">
+            </div>
+            
+            <nav class="nav">
+                <a href="{% url 'acervo:home' %}" class="nav-item{% if request.resolver_match.view_name == 'acervo:home' %} active{% endif %}">
+                    <i data-feather="home" class="nav-icon"></i>
+                    <span>Início</span>
+                </a>
+                
+                <a href="{% url 'acervo:lista' %}" class="nav-item{% if request.resolver_match.view_name == 'acervo:lista' %} active{% endif %}">
+                    <i data-feather="archive" class="nav-icon"></i>
+                    <span>Acervo</span>
+                </a>
+                
+                <a href="{% url 'patrimonio:lista' %}" class="nav-item{% if request.resolver_match.view_name == 'patrimonio:lista' %} active{% endif %}">
+                    <i data-feather="map-pin" class="nav-icon"></i>
+                    <span>Patrimônio</span>
+                </a>
+                
+                <a href="{% url 'arte:galeria' %}" class="nav-item{% if 'arte' in request.resolver_match.url_name %} active{% endif %}">
+                    <i data-feather="image" class="nav-icon"></i>
+                    <span>Arte & Exposições</span>
+                </a>
+                
+                <a href="{% url 'personalidades:salao_honra' %}" class="nav-item{% if 'personalidades' in request.resolver_match.url_name %} active{% endif %}">
+                    <i data-feather="users" class="nav-icon"></i>
+                    <span>Personalidades</span>
+                </a>
+                
+                <a href="{% url 'acervo:lista' %}?categoria=musica-literatura" class="nav-item{% if request.GET.categoria == 'musica-literatura' %} active{% endif %}">
+                    <i data-feather="music" class="nav-icon"></i>
+                    <span>Música & Literatura</span>
+                </a>
+                <a href="{% url 'noticias:lista' %}" class="nav-item{% if 'noticias' in request.resolver_match.url_name %} active{% endif %}">
+                    <i data-feather="file-text" class="nav-icon"></i>
+                    <span>Notícias</span>
+                </a>
+                
+                <a href="#" class="nav-item">
+                    <i data-feather="calendar" class="nav-icon"></i>
+                    <span>Eventos Culturais</span>
+                </a>
+                
+                <a href="#" class="nav-item">
+                    <i data-feather="camera" class="nav-icon"></i>
+                    <span>Espaços Culturais</span>
+                </a>
+                
+                <div class="nav-divider"></div>
+                
+                <a href="{% url 'usuarios:contato' %}" class="nav-item{% if request.resolver_match.view_name == 'usuarios:contato' %} active{% endif %}">
+                    <i data-feather="mail" class="nav-icon"></i>
+                    <span>Contato</span>
+                </a>
+                
+                {% if user.is_staff %}
+                <div class="nav-divider"></div>
+                
+                <a href="{% url 'dashboard' %}" class="nav-item">
+                    <i data-feather="bar-chart-2" class="nav-icon"></i>
+                    <span>Dashboard</span>
+                </a>
+                
+                <a href="/admin/" class="nav-item" target="_blank">
+                    <i data-feather="settings" class="nav-icon"></i>
+                    <span>Admin</span>
+                </a>
+                {% endif %}
+            </nav>
+            
+            <div class="sidebar-footer">
+                {% if user.is_superuser %}
+                <div class="user-info">
+                    <div class="user-avatar">
+                        {{ user.first_name.0|default:user.username.0|upper }}
+                    </div>
+                    <div class="user-details">
+                        <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
+                        <span class="user-role">Administrador</span>
+                    </div>
+                </div>
+                <a href="/admin/logout/" class="nav-item">
+                    <i data-feather="log-out" class="nav-icon"></i>
+                    <span>Sair</span>
+                </a>
+                {% endif %}
+            </div>
+        </aside>
+        
+        <!-- Conteúdo Principal -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="sidebar-toggle btn btn-outline">
+                        <i data-feather="menu"></i>
+                    </button>
+                    <h1 class="page-title">{% block page_title %}Centro Cultural Digital{% endblock %}</h1>
+                </div>
+                
+                <div class="header-right">
+                    <!-- Busca Global -->
+                    <form class="search-form" method="GET" action="{% url 'acervo:buscar' %}">
+                        <div class="search-input-group">
+                            <input 
+                                type="text" 
+                                name="q" 
+                                placeholder="Buscar no acervo..." 
+                                value="{{ request.GET.q }}"
+                                class="form-input"
+                            >
+                            <button type="submit" class="btn btn-primary">
+                                <i data-feather="search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </header>
+            
+            <!-- Conteúdo da Página -->
+            <div class="page-content">
+                <div class="container">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Modals -->
+    {% include 'modals/login.html' %}
+    {% include 'modals/register.html' %}
+    {% include 'modals/logout.html' %}
+    {% include 'modals/patrimonio.html' %}
+    
+    <!-- JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+    <script src="{% static 'js/museu.js' %}"></script>
+    <script src="{% static 'js/icons.js' %}"></script>
+    
+    <script>
+        // Configurações globais
+        window.csrfToken = '{{ csrf_token }}';
+        window.ajaxUrls = {
+            register: '{% url "ajax_register" %}',
+            login: '{% url "ajax_login" %}',
+            addPatrimonio: '{% url "ajax_add_patrimonio" %}',
+            listPatrimonios: '{% url "ajax_list_patrimonios" %}'
+        };
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+</body>
+</html>

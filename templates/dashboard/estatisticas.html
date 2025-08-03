@@ -1,0 +1,368 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Estatísticas do Muzeu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="{% static 'css/main.css' %}" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #36596E;
+            --secondary: #B4A986;
+            --accent: #385B6F;
+            --terra: #844A41;
+            --nature: #546B53;
+            --base-light: #FFEAC9;
+            --background: var(--base-light);
+            --text: #36596E;
+        }
+        body.bg-light {
+            background: var(--background) !important;
+            color: var(--text) !important;
+        }
+        .navbar.bg-dark {
+            background: linear-gradient(135deg, var(--primary), var(--terra)) !important;
+        }
+        .navbar .navbar-brand, .navbar .btn-outline-light {
+            color: #fff !important;
+        }
+        .stat-card {
+            transition: transform 0.2s;
+            border: none;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        }
+        .stat-card.bg-primary {
+            background: var(--primary) !important;
+            color: #fff !important;
+        }
+        .stat-card.bg-success {
+            background: var(--nature) !important;
+            color: #fff !important;
+        }
+        .stat-card.bg-warning {
+            background: var(--secondary) !important;
+            color: var(--primary) !important;
+        }
+        .stat-card.bg-info {
+            background: var(--accent) !important;
+            color: #fff !important;
+        }
+        .stat-card:hover { transform: translateY(-5px); }
+        .card-header {
+            background: var(--base-light) !important;
+            color: var(--primary) !important;
+            border-bottom: 1px solid var(--secondary) !important;
+        }
+        .card {
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06);
+        }
+        .badge.bg-primary {
+            background: var(--primary) !important;
+            color: #fff !important;
+        }
+        .badge.bg-success {
+            background: var(--nature) !important;
+            color: #fff !important;
+        }
+        .table thead th {
+            color: var(--primary);
+        }
+        .table tbody tr:hover {
+            background: var(--base-light);
+        }
+        .btn-outline-light {
+            border-color: #fff !important;
+            color: #fff !important;
+        }
+        .btn-outline-light:hover {
+            background: var(--primary) !important;
+            color: #fff !important;
+        }
+        .chart-container { position: relative; height: 400px; }
+    </style>
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <span class="navbar-brand">
+                <i class="fas fa-chart-bar me-2"></i>Dashboard - Muzeu
+            </span>
+            <a href="/" class="btn btn-outline-light btn-sm me-2">Voltar ao Início</a>
+            <a href="/admin/" class="btn btn-outline-light btn-sm">Voltar ao Admin</a>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-4">
+        <!-- Cards de Estatísticas -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card stat-card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h3>{{ stats.total_acervo }}</h3>
+                                <p class="mb-0">Itens do Acervo</p>
+                            </div>
+                            <i class="fas fa-archive fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stat-card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h3>{{ stats.total_visitantes }}</h3>
+                                <p class="mb-0">Visitantes Cadastrados</p>
+                            </div>
+                            <i class="fas fa-users fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stat-card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h3>{{ stats.exposicoes_ativas }}</h3>
+                                <p class="mb-0">Exposições Ativas</p>
+                            </div>
+                            <i class="fas fa-image fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stat-card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h3>{{ stats.visitas_mes }}</h3>
+                                <p class="mb-0">Visitas Este Mês</p>
+                            </div>
+                            <i class="fas fa-calendar fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráficos -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-pie me-2"></i>Itens por Categoria</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="categoriesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-line me-2"></i>Visitas por Mês</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="visitsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-bar me-2"></i>Estado de Conservação</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="conservationChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-area me-2"></i>Crescimento do Acervo</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="growthChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabelas de Rankings -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-trophy me-2"></i>Top Categorias</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Categoria</th>
+                                        <th>Itens</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for categoria in top_categorias %}
+                                    <tr>
+                                        <td>{{ categoria.nome }}</td>
+                                        <td><span class="badge bg-primary">{{ categoria.visitas }}</span></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-star me-2"></i>Eventos Populares</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Evento</th>
+                                        <th>Inscrições</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for evento in eventos_populares %}
+                                    <tr>
+                                        <td>{{ evento.titulo|truncatechars:30 }}</td>
+                                        <td><span class="badge bg-success">{{ evento.total_inscricoes }}</span></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados dos gráficos do Django
+        const categoriesData = JSON.parse(document.getElementById('categorias-json').textContent);
+        const visitsData = JSON.parse(document.getElementById('visitas-json').textContent);
+        const conservationData = JSON.parse(document.getElementById('conservacao-json').textContent);
+        const growthData = JSON.parse(document.getElementById('crescimento-json').textContent);
+
+        // Gráfico de Pizza - Categorias
+        const ctxCategories = document.getElementById('categoriesChart').getContext('2d');
+        new Chart(ctxCategories, {
+            type: 'doughnut',
+            data: {
+                labels: categoriesData.map(d => d.label),
+                datasets: [{
+                    data: categoriesData.map(d => d.value),
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#FF9F40', '#FF6384', '#36A2EB']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right' }
+                }
+            }
+        });
+
+        // Gráfico de Linha - Visitas
+        const ctxVisits = document.getElementById('visitsChart').getContext('2d');
+        new Chart(ctxVisits, {
+            type: 'line',
+            data: {
+                labels: visitsData.map(d => d.mes),
+                datasets: [{
+                    label: 'Visitas',
+                    data: visitsData.map(d => d.total),
+                    borderColor: '#36A2EB',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Gráfico de Barras - Conservação
+        const ctxConservation = document.getElementById('conservationChart').getContext('2d');
+        new Chart(ctxConservation, {
+            type: 'bar',
+            data: {
+                labels: conservationData.map(d => d.estado),
+                datasets: [{
+                    label: 'Itens',
+                    data: conservationData.map(d => d.total),
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#FF9F40']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Gráfico de Área - Crescimento
+        const ctxGrowth = document.getElementById('growthChart').getContext('2d');
+        new Chart(ctxGrowth, {
+            type: 'line',
+            data: {
+                labels: growthData.map(d => d.mes),
+                datasets: [{
+                    label: 'Novos Itens',
+                    data: growthData.map(d => d.total),
+                    borderColor: '#4BC0C0',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

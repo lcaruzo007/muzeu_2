@@ -1,0 +1,480 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ exposicao.titulo }} - Exposições{% endblock %}
+
+{% block extra_css %}
+<style>
+    .exposicao-hero {
+        background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+        color: white;
+        padding: var(--spacing-8) 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .exposicao-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Crect x='18' y='18' width='4' height='4'/%3E%3C/g%3E%3C/svg%3E") repeat;
+    }
+    
+    .exposicao-header {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+    }
+    
+    .exposicao-status-badge {
+        display: inline-block;
+        padding: var(--spacing-1) var(--spacing-3);
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: bold;
+        margin-bottom: var(--spacing-3);
+        backdrop-filter: blur(10px);
+    }
+    
+    .status-ativa {
+        background: rgba(34, 197, 94, 0.9);
+        color: white;
+    }
+    
+    .status-proxima {
+        background: rgba(59, 130, 246, 0.9);
+        color: white;
+    }
+    
+    .status-passada {
+        background: rgba(107, 114, 128, 0.9);
+        color: white;
+    }
+    
+    .exposicao-container {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: var(--spacing-8);
+        margin: var(--spacing-8) 0;
+    }
+    
+    .exposicao-content {
+        background: white;
+        padding: var(--spacing-6);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+    }
+    
+    .exposicao-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-6);
+    }
+    
+    .exposicao-info-card {
+        background: white;
+        padding: var(--spacing-5);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+    }
+    
+    .exposicao-imagem-capa {
+        width: 100%;
+        height: 250px;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        margin-bottom: var(--spacing-6);
+        position: relative;
+    }
+    
+    .exposicao-imagem-capa img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .placeholder-exposicao-detail {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 4rem;
+        opacity: 0.7;
+    }
+    
+    .exposicao-descricao {
+        line-height: 1.7;
+        color: var(--text-primary);
+        margin-bottom: var(--spacing-6);
+    }
+    
+    .info-item-detail {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-2);
+        padding: var(--spacing-3);
+        background: var(--neutral-light);
+        border-radius: var(--border-radius-sm);
+        margin-bottom: var(--spacing-3);
+    }
+    
+    .info-icon {
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+    
+    .info-text {
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+    
+    .obras-exposicao {
+        margin-top: var(--spacing-6);
+    }
+    
+    .obras-grid-exposicao {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: var(--spacing-4);
+        margin-top: var(--spacing-4);
+    }
+    
+    .obra-card-pequena {
+        background: white;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .obra-card-pequena:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+    
+    .obra-imagem-pequena {
+        width: 100%;
+        height: 120px;
+        overflow: hidden;
+    }
+    
+    .obra-imagem-pequena img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .obra-card-pequena:hover .obra-imagem-pequena img {
+        transform: scale(1.1);
+    }
+    
+    .obra-info-pequena {
+        padding: var(--spacing-3);
+    }
+    
+    .obra-titulo-pequena {
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: var(--spacing-1);
+        line-height: 1.3;
+        color: var(--text-primary);
+    }
+    
+    .obra-artista-pequena {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+    }
+    
+    .breadcrumb {
+        background: var(--neutral-light);
+        padding: var(--spacing-3);
+        margin-bottom: var(--spacing-4);
+    }
+    
+    .breadcrumb a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+    
+    .breadcrumb a:hover {
+        text-decoration: underline;
+    }
+    
+    .btn-voltar {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--spacing-2);
+        background: var(--primary);
+        color: white;
+        padding: var(--spacing-2) var(--spacing-4);
+        border-radius: var(--border-radius);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        margin-bottom: var(--spacing-6);
+    }
+    
+    .btn-voltar:hover {
+        background: var(--secondary);
+        transform: translateY(-2px);
+        color: white;
+    }
+    
+    .curador-info {
+        background: var(--accent-light);
+        border: 2px solid var(--accent);
+        padding: var(--spacing-4);
+        border-radius: var(--border-radius);
+        margin-bottom: var(--spacing-4);
+    }
+    
+    .curador-info h4 {
+        color: var(--accent);
+        margin-bottom: var(--spacing-2);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-2);
+    }
+    
+    @media (max-width: 768px) {
+        .exposicao-container {
+            grid-template-columns: 1fr;
+            gap: var(--spacing-6);
+        }
+        
+        .exposicao-sidebar {
+            order: -1;
+        }
+        
+        .obras-grid-exposicao {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: var(--spacing-3);
+        }
+        
+        .exposicao-hero {
+            padding: var(--spacing-6) 0;
+        }
+        
+        .exposicao-hero h1 {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="breadcrumb">
+    <div class="container">
+        <a href="{% url 'acervo:home' %}">Início</a> > 
+        <a href="{% url 'arte:galeria' %}">Arte & Exposições</a> > 
+        <a href="{% url 'arte:exposicoes' %}">Exposições</a> > 
+        {{ exposicao.titulo }}
+    </div>
+</div>
+
+<!-- Hero da Exposição -->
+<section class="exposicao-hero">
+    <div class="container">
+        <div class="exposicao-header">
+            <!-- Status da exposição -->
+            {% now "Y-m-d" as hoje %}
+            {% if exposicao.data_inicio|date:"Y-m-d" <= hoje and exposicao.data_fim|date:"Y-m-d" >= hoje %}
+                <div class="exposicao-status-badge status-ativa">
+                    <i data-feather="play-circle" class="inline-block mr-1" style="width: 16px; height: 16px;"></i>
+                    Em Exibição
+                </div>
+            {% elif exposicao.data_inicio|date:"Y-m-d" > hoje %}
+                <div class="exposicao-status-badge status-proxima">
+                    <i data-feather="clock" class="inline-block mr-1" style="width: 16px; height: 16px;"></i>
+                    Em Breve
+                </div>
+            {% else %}
+                <div class="exposicao-status-badge status-passada">
+                    <i data-feather="archive" class="inline-block mr-1" style="width: 16px; height: 16px;"></i>
+                    Encerrada
+                </div>
+            {% endif %}
+            
+            <h1 class="text-4xl font-bold mb-4">{{ exposicao.titulo }}</h1>
+            
+            {% if exposicao.curador %}
+                <p class="text-xl opacity-90">
+                    Curadoria: {{ exposicao.curador }}
+                </p>
+            {% endif %}
+            
+            <div class="text-lg opacity-80 mt-4">
+                <i data-feather="calendar" class="inline-block mr-2"></i>
+                {{ exposicao.data_inicio|date:"d/m/Y" }} até {{ exposicao.data_fim|date:"d/m/Y" }}
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container">
+    <a href="{% url 'arte:exposicoes' %}" class="btn-voltar">
+        <i data-feather="arrow-left"></i>
+        Voltar às Exposições
+    </a>
+    
+    <div class="exposicao-container">
+        <!-- Conteúdo Principal -->
+        <div class="exposicao-content">
+            <!-- Imagem de Capa -->
+            {% if exposicao.imagem_capa %}
+                <div class="exposicao-imagem-capa">
+                    <img src="{{ exposicao.imagem_capa.url }}" alt="{{ exposicao.titulo }}">
+                </div>
+            {% else %}
+                <div class="exposicao-imagem-capa">
+                    <div class="placeholder-exposicao-detail">
+                        <i data-feather="eye"></i>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Descrição -->
+            {% if exposicao.descricao %}
+                <div class="exposicao-descricao">
+                    <h2 class="text-2xl font-bold mb-4">
+                        <i data-feather="file-text" class="inline-block mr-2"></i>
+                        Sobre a Exposição
+                    </h2>
+                    {{ exposicao.descricao|linebreaks }}
+                </div>
+            {% endif %}
+            
+            <!-- Curador -->
+            {% if exposicao.curador and exposicao.texto_curador %}
+                <div class="curador-info">
+                    <h4>
+                        <i data-feather="user"></i>
+                        Palavra do Curador
+                    </h4>
+                    <p>{{ exposicao.texto_curador|linebreaks }}</p>
+                </div>
+            {% endif %}
+            
+            <!-- Obras da Exposição -->
+            {% if obras %}
+                <div class="obras-exposicao">
+                    <h2 class="text-2xl font-bold mb-4">
+                        <i data-feather="grid" class="inline-block mr-2"></i>
+                        Obras em Exposição ({{ obras.count }})
+                    </h2>
+                    
+                    <div class="obras-grid-exposicao">
+                        {% for obra in obras %}
+                            <a href="{% url 'arte:obra_detail' obra.id %}" class="obra-card-pequena">
+                                <div class="obra-imagem-pequena">
+                                    {% if obra.imagem %}
+                                        <img src="{{ obra.imagem.url }}" alt="{{ obra.titulo }}">
+                                    {% else %}
+                                        <div class="bg-gray-200 h-full flex items-center justify-center text-gray-400">
+                                            <i data-feather="image" style="width: 30px; height: 30px;"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="obra-info-pequena">
+                                    <div class="obra-titulo-pequena">{{ obra.titulo }}</div>
+                                    <div class="obra-artista-pequena">{{ obra.artista.nome }}</div>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Sidebar com Informações -->
+        <div class="exposicao-sidebar">
+            <!-- Informações Gerais -->
+            <div class="exposicao-info-card">
+                <h3 class="text-lg font-bold mb-4">
+                    <i data-feather="info" class="inline-block mr-2"></i>
+                    Informações
+                </h3>
+                
+                <div class="info-item-detail">
+                    <i data-feather="calendar" class="info-icon" style="width: 20px; height: 20px;"></i>
+                    <div>
+                        <div class="info-text">Período</div>
+                        <div class="text-sm text-gray-600">
+                            {{ exposicao.data_inicio|date:"d/m/Y" }} até {{ exposicao.data_fim|date:"d/m/Y" }}
+                        </div>
+                    </div>
+                </div>
+                
+                {% if exposicao.local %}
+                    <div class="info-item-detail">
+                        <i data-feather="map-pin" class="info-icon" style="width: 20px; height: 20px;"></i>
+                        <div>
+                            <div class="info-text">Local</div>
+                            <div class="text-sm text-gray-600">{{ exposicao.local }}</div>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                {% if exposicao.horario_funcionamento %}
+                    <div class="info-item-detail">
+                        <i data-feather="clock" class="info-icon" style="width: 20px; height: 20px;"></i>
+                        <div>
+                            <div class="info-text">Horário</div>
+                            <div class="text-sm text-gray-600">{{ exposicao.horario_funcionamento }}</div>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <div class="info-item-detail">
+                    <i data-feather="image" class="info-icon" style="width: 20px; height: 20px;"></i>
+                    <div>
+                        <div class="info-text">Obras</div>
+                        <div class="text-sm text-gray-600">{{ obras.count }} peça{{ obras.count|pluralize:"s" }} em exposição</div>
+                    </div>
+                </div>
+                
+                {% if exposicao.entrada_gratuita %}
+                    <div class="info-item-detail">
+                        <i data-feather="dollar-sign" class="info-icon" style="width: 20px; height: 20px;"></i>
+                        <div>
+                            <div class="info-text">Entrada</div>
+                            <div class="text-sm text-gray-600">Gratuita</div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Compartilhar -->
+            <div class="exposicao-info-card">
+                <h3 class="text-lg font-bold mb-4">
+                    <i data-feather="share-2" class="inline-block mr-2"></i>
+                    Compartilhar
+                </h3>
+                
+                <div class="flex gap-2">
+                    <button class="flex-1 bg-blue-600 text-white p-2 rounded text-sm hover:bg-blue-700 transition-colors">
+                        <i data-feather="facebook" class="inline-block mr-1" style="width: 16px; height: 16px;"></i>
+                        Facebook
+                    </button>
+                    <button class="flex-1 bg-blue-400 text-white p-2 rounded text-sm hover:bg-blue-500 transition-colors">
+                        <i data-feather="twitter" class="inline-block mr-1" style="width: 16px; height: 16px;"></i>
+                        Twitter
+                    </button>
+                </div>
+                
+                <button class="w-full mt-2 bg-green-600 text-white p-2 rounded text-sm hover:bg-green-700 transition-colors">
+                    <i data-feather="message-circle" class="inline-block mr-1" style="width: 16px; height: 16px;"></i>
+                    WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

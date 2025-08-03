@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Patrimônio Histórico{% endblock %}
+
+{% block content %}
+<div class="page-patrimonio">
+    <div class="page-header mb-8">
+        <h2 class="section-title">Patrimônio Histórico de Muzambinho</h2>
+        <p class="section-subtitle">Conheça os locais históricos e patrimônios culturais da nossa cidade</p>
+    </div>
+
+    <!-- Filtros e Busca -->
+    <div class="patrimonio-filters card mb-6">
+        <form method="GET" class="filter-form">
+            <div class="grid grid-cols-4 gap-4">
+                <div>
+                    <input type="text" name="q" class="form-input" placeholder="Buscar patrimônio..." value="{{ request.GET.q }}">
+                </div>
+                <div>
+                    <select name="categoria" class="form-input">
+                        <option value="">Todas as categorias</option>
+                        <option value="arquitetonico" {% if request.GET.categoria == 'arquitetonico' %}selected{% endif %}>Arquitetônico</option>
+                        <option value="historico" {% if request.GET.categoria == 'historico' %}selected{% endif %}>Histórico</option>
+                        <option value="cultural" {% if request.GET.categoria == 'cultural' %}selected{% endif %}>Cultural</option>
+                        <option value="religioso" {% if request.GET.categoria == 'religioso' %}selected{% endif %}>Religioso</option>
+                    </select>
+                </div>
+                <div>
+                    <select name="estado" class="form-input">
+                        <option value="">Todos os estados</option>
+                        <option value="preservado" {% if request.GET.estado == 'preservado' %}selected{% endif %}>Preservado</option>
+                        <option value="restauracao" {% if request.GET.estado == 'restauracao' %}selected{% endif %}>Em Restauração</option>
+                        <option value="deteriorado" {% if request.GET.estado == 'deteriorado' %}selected{% endif %}>Deteriorado</option>
+                    </select>
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary w-full">
+                        <i data-feather="search"></i> Filtrar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Lista de Patrimônios -->
+    <div class="patrimonio-grid grid grid-cols-3 gap-6">
+        {% for patrimonio in patrimonios %}
+        <div class="patrimonio-card card fade-in">
+            <div class="patrimonio-image">
+                {% if patrimonio.imagem %}
+                    <img src="{{ patrimonio.imagem.url }}" alt="{{ patrimonio.nome }}">
+                {% else %}
+                    <div class="placeholder-image">
+                        <i data-feather="map-pin"></i>
+                    </div>
+                {% endif %}
+                
+                <!-- Badge do estado -->
+                <span class="status-badge status-{{ patrimonio.estado_conservacao }}">
+                    {{ patrimonio.get_estado_conservacao_display }}
+                </span>
+                
+                <!-- Badge 3D se disponível -->
+                {% if patrimonio.modelo_3d %}
+                <span class="badge-3d" title="Modelo 3D disponível">
+                    <i data-feather="box"></i> 3D
+                </span>
+                {% endif %}
+            </div>
+            
+            <div class="patrimonio-content">
+                <h3>{{ patrimonio.nome }}</h3>
+                <p class="patrimonio-description">{{ patrimonio.descricao|truncatewords:20 }}</p>
+                
+                <div class="patrimonio-meta">
+                    {% if patrimonio.origem %}
+                    <span class="meta-item">
+                        <i data-feather="calendar"></i>
+                        {{ patrimonio.origem }}
+                    </span>
+                    {% endif %}
+                    
+                    {% if patrimonio.localizacao %}
+                    <span class="meta-item">
+                        <i data-feather="map-pin"></i>
+                        {{ patrimonio.localizacao }}
+                    </span>
+                    {% endif %}
+                </div>
+                
+                <div class="patrimonio-actions">
+                    <button class="btn btn-primary btn-sm" onclick="viewPatrimonio({{ patrimonio.id }})">
+                        <i data-feather="eye"></i> Ver Detalhes
+                    </button>
+                    
+                    {% if patrimonio.modelo_3d %}
+                    <button class="btn btn-accent btn-sm" onclick="view3DModel({{ patrimonio.id }})">
+                        <i data-feather="box"></i> Ver 3D
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state text-center mt-8">
+            <i data-feather="map-pin" style="font-size: 3rem;"></i>
+            <h3 class="mt-4">Nenhum patrimônio encontrado</h3>
+            <p>Tente ajustar os filtros de busca.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Botão para adicionar (só para staff) -->
+    {% if user.is_staff %}
+    <div class="floating-action">
+        <button class="btn btn-primary btn-lg" data-modal="addPatrimonioModal">
+            <i data-feather="plus"></i> Adicionar Patrimônio
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal de Detalhes do Patrimônio -->
+<div id="patrimonioDetailModal" class="modal-overlay">
+    <div class="modal modal-large">
+        <div class="modal-header">
+            <h2 class="modal-title">Detalhes do Patrimônio</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body" id="patrimonioDetailContent">
+            <!-- Conteúdo carregado via AJAX -->
+        </div>
+    </div>
+</div>
+
+<!-- Modal do Visualizador 3D -->
+<div id="model3DModal" class="modal-overlay">
+    <div class="modal modal-fullscreen">
+        <div class="modal-header">
+            <h2 class="modal-title">Visualizador 3D</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="model3DContainer" style="width: 100%; height: 80vh;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Adicionar Patrimônio (para staff) -->
+{% if user.is_staff %}
+{% include 'modals/add_patrimonio.html' %}
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Funções para ver detalhes do patrimônio
+function viewPatrimonio(id) {
+    fetch(`/patrimonio/detalhe/${id}/`)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('patrimonioDetailContent').innerHTML = html;
+            museuApp.modalManager.openModal('patrimonioDetailModal');
+        })
+        .catch(error => console.error('Erro ao carregar patrimônio:', error));
+}
+
+// Função para visualizar modelo 3D
+function view3DModel(id) {
+    museuApp.modalManager.openModal('model3DModal');
+    museuApp.model3DViewer.loadModel(`/media/patrimonio/modelos_3d/${id}.glb`);
+}
+</script>
+{% endblock %}

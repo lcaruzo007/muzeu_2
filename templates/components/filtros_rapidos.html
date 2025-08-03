@@ -1,0 +1,11 @@
+{# Componente de filtros rápidos reutilizável #}
+{% if categorias %}
+<div class="quick-filters">
+    <span class="filter-label">Filtros rápidos:</span>
+    {% for categoria in categorias %}
+    <a href="{% url 'acervo:lista' %}?categoria={{ categoria.id }}" class="filter-tag{% if request.GET.categoria|default:'' == categoria.id|stringformat:'s' %} active{% endif %}">
+        {{ categoria.nome }}
+    </a>
+    {% endfor %}
+</div>
+{% endif %}

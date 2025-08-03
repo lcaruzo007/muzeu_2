@@ -1,0 +1,542 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contato{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-contato {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        color: white;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        margin: calc(-1 * var(--spacing-6)) calc(-1 * var(--spacing-6)) var(--spacing-8);
+        padding: var(--spacing-8) var(--spacing-6);
+        border-radius: 0 0 var(--border-radius) var(--border-radius);
+    }
+    
+    .hero-contato::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='20' cy='20' r='2'/%3E%3C/g%3E%3C/svg%3E") repeat;
+        z-index: 0;
+    }
+    
+    .hero-contato-content {
+        position: relative;
+        z-index: 1;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .hero-contato-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: var(--spacing-4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-2);
+    }
+    
+    .hero-contato-desc {
+        font-size: 1.25rem;
+        opacity: 0.9;
+        line-height: 1.6;
+    }
+    
+    @media (max-width: 768px) {
+        .hero-contato {
+            margin: calc(-1 * var(--spacing-4)) calc(-1 * var(--spacing-4)) var(--spacing-6);
+            padding: var(--spacing-6) var(--spacing-4);
+        }
+        
+        .hero-contato-title {
+            font-size: 2rem;
+            flex-direction: column;
+            gap: var(--spacing-1);
+        }
+        
+        .hero-contato-desc {
+            font-size: 1rem;
+        }
+    }
+    
+    .contato-container {
+        display: grid;</div>
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-8);
+        margin-top: var(--spacing-6);
+    }
+    
+    .contato-form-section,
+    .contato-info-section {
+        background: white;
+        padding: var(--spacing-6);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        height: fit-content;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--text-primary);
+        margin-bottom: var(--spacing-6);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-2);
+        padding-bottom: var(--spacing-2);
+        border-bottom: 2px solid var(--primary);
+    }
+    
+    .form-grupo {
+        margin-bottom: var(--spacing-4);
+    }
+    
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: var(--spacing-2);
+        font-size: 0.9rem;
+    }
+    
+    .form-label.obrigatorio::after {
+        content: ' *';
+        color: var(--accent);
+        font-weight: bold;
+    }
+    
+    .form-input,
+    .form-select,
+    .form-textarea {
+        width: 100%;
+        padding: var(--spacing-3);
+        border: 2px solid var(--neutral);
+        border-radius: var(--border-radius-sm);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        font-family: inherit;
+        background: white;
+    }
+    
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+    
+    .form-textarea {
+        resize: vertical;
+        min-height: 120px;
+        font-family: inherit;
+        line-height: 1.5;
+    }
+    
+    .btn-enviar {
+        background: var(--primary);
+        color: white;
+        padding: var(--spacing-3) var(--spacing-6);
+        border: none;
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-2);
+        margin-top: var(--spacing-4);
+        width: fit-content;
+    }
+    
+    .btn-enviar:hover:not(:disabled) {
+        background: var(--secondary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    
+    .btn-enviar:disabled {
+        background: var(--neutral);
+        cursor: not-allowed;
+        transform: none;
+        opacity: 0.7;
+    }
+    
+    .info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--spacing-3);
+        margin-bottom: var(--spacing-5);
+        padding: var(--spacing-4);
+        background: var(--neutral-light);
+        border-radius: var(--border-radius);
+        border-left: 4px solid var(--primary);
+        transition: all 0.3s ease;
+    }
+    
+    .info-item:hover {
+        transform: translateX(5px);
+        box-shadow: var(--shadow);
+    }
+    
+    .info-icon {
+        background: var(--primary);
+        color: white;
+        padding: var(--spacing-2);
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .info-content h4 {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: var(--spacing-1);
+        font-size: 1rem;
+    }
+    
+    .info-content p {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin: 0;
+        font-size: 0.9rem;
+    }
+    
+    .horarios-funcionamento {
+        background: linear-gradient(135deg, var(--accent-light), rgba(255,255,255,0.8));
+        border: 2px solid var(--accent);
+        padding: var(--spacing-4);
+        border-radius: var(--border-radius);
+        margin-top: var(--spacing-6);
+    }
+    
+    .horarios-funcionamento h4 {
+        color: var(--accent);
+        margin-bottom: var(--spacing-3);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-2);
+        font-size: 1rem;
+        font-weight: 600;
+    }
+    
+    .horario-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-2) 0;
+        border-bottom: 1px solid rgba(139, 69, 19, 0.2);
+    }
+    
+    .horario-item:last-child {
+        border-bottom: none;
+    }
+    
+    .horario-dia {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .alert {
+        padding: var(--spacing-3);
+        border-radius: var(--border-radius);
+        margin-bottom: var(--spacing-4);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-2);
+        font-weight: 500;
+    }
+    
+    .alert-success {
+        background: #d1fae5;
+        border: 1px solid #10b981;
+        color: #047857;
+    }
+    
+    .alert-error {
+        background: #fee2e2;
+        border: 1px solid #ef4444;
+        color: #dc2626;
+    }
+    
+    .loading-spinner {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid transparent;
+        border-top: 2px solid currentColor;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .mapa-container {
+        margin-top: var(--spacing-6);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+    }
+    
+    .mapa-container iframe {
+        width: 100%;
+        height: 250px;
+        border: none;
+    }
+    
+    .form-info {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-top: var(--spacing-3);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-1);
+    }
+    
+    @media (max-width: 768px) {
+        .contato-container {
+            grid-template-columns: 1fr;
+            gap: var(--spacing-6);
+        }
+        
+        .contato-form-section,
+        .contato-info-section {
+            padding: var(--spacing-4);
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+        }
+        
+        .info-item {
+            flex-direction: column;
+            text-align: center;
+            gap: var(--spacing-2);
+        }
+        
+        .info-icon {
+            margin: 0 auto;
+        }
+        
+        .horario-item {
+            flex-direction: column;
+            gap: var(--spacing-1);
+            text-align: center;
+        }
+        
+        .btn-enviar {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-contato">
+    <div class="hero-contato-content">
+        <h1 class="hero-contato-title">
+            <i data-feather="mail"></i>
+            Entre em Contato
+        </h1>
+        <p class="hero-contato-desc">
+            Estamos aqui para ajudar! Entre em contato conosco para tirar dúvidas, agendar visitas ou compartilhar suas ideias.
+        </p>
+    </div>
+</section>
+
+<div class="contato-container">
+    <!-- Formulário de Contato -->
+    <div class="contato-form-section">
+        <h2 class="section-title">
+            <i data-feather="message-square"></i>
+            Envie sua Mensagem
+        </h2>
+            
+            <!-- Alertas -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i data-feather="{% if message.tags == 'success' %}check-circle{% else %}alert-circle{% endif %}" style="width: 20px; height: 20px;"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <form method="POST" id="contato-form">
+                {% csrf_token %}
+                
+                <div class="form-grupo">
+                    <label for="nome" class="form-label obrigatorio">Nome Completo</label>
+                    <input type="text" id="nome" name="nome" class="form-input" required>
+                </div>
+                
+                <div class="form-grupo">
+                    <label for="email" class="form-label obrigatorio">E-mail</label>
+                    <input type="email" id="email" name="email" class="form-input" required>
+                </div>
+                
+                <div class="form-grupo">
+                    <label for="telefone" class="form-label">Telefone</label>
+                    <input type="tel" id="telefone" name="telefone" class="form-input" placeholder="(35) 99999-9999">
+                </div>
+                
+                <div class="form-grupo">
+                    <label for="assunto" class="form-label obrigatorio">Assunto</label>
+                    <select id="assunto" name="assunto" class="form-select" required>
+                        <option value="">Selecione um assunto</option>
+                        <option value="Informações Gerais">Informações Gerais</option>
+                        <option value="Agendamento de Visita">Agendamento de Visita</option>
+                        <option value="Doação de Acervo">Doação de Acervo</option>
+                        <option value="Parcerias">Parcerias</option>
+                        <option value="Eventos">Eventos</option>
+                        <option value="Pesquisa Histórica">Pesquisa Histórica</option>
+                        <option value="Sugestões">Sugestões</option>
+                        <option value="Reclamações">Reclamações</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
+                
+                <div class="form-grupo">
+                    <label for="mensagem" class="form-label obrigatorio">Mensagem</label>
+                    <textarea id="mensagem" name="mensagem" class="form-textarea" required 
+                             placeholder="Escreva sua mensagem aqui..."></textarea>
+                </div>
+                
+                <button type="submit" class="btn-enviar" id="btn-enviar">
+                    <span class="loading-spinner" id="loading-spinner"></span>
+                    <i data-feather="send" id="send-icon"></i>
+                    <span id="btn-text">Enviar Mensagem</span>
+                </button>
+                
+                <p class="form-info">
+                    <i data-feather="info"></i>
+                    Campos marcados com * são obrigatórios
+                </p>
+            </form>
+        </div>
+        
+        <!-- Informações de Contato -->
+        <div class="contato-info-section">
+            <h2 class="section-title">
+                <i data-feather="map-pin"></i>
+                Informações de Contato
+            </h2>
+            
+            <div class="info-item">
+                <div class="info-icon">
+                    <i data-feather="map-pin"></i>
+                </div>
+                <div class="info-content">
+                    <h4>Endereço</h4>
+                    <p>Rua José Bonifácio, 123<br>
+                    Centro - Muzambinho/MG<br>
+                    CEP: 37890-000</p>
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-icon">
+                    <i data-feather="phone"></i>
+                </div>
+                <div class="info-content">
+                    <h4>Telefone</h4>
+                    <p>(35) 3571-1234<br>
+                    (35) 99999-9999 (WhatsApp)</p>
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-icon">
+                    <i data-feather="mail"></i>
+                </div>
+                <div class="info-content">
+                    <h4>E-mail</h4>
+                    <p>
+                    cultura@muzambinho.mg.gov.br</p>
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-icon">
+                    <i data-feather="globe"></i>
+                </div>
+                <div class="info-content">
+                    <h4>Redes Sociais</h4>
+                    <p>@museumuzminho<br>
+                    Museu Municipal Muzambinho</p>
+                    
+                </div>
+            </div>
+            
+            <!-- Horários de Funcionamento -->
+            <div class="horarios-funcionamento">
+                <h4>
+                    <i data-feather="clock"></i>
+                    Horários de Funcionamento
+                </h4>
+                <div class="horario-item">
+                    <span class="horario-dia">Segunda a Sexta</span>
+                    <span>8h às 17h</span>
+                </div>
+                <div class="horario-item">
+                    <span class="horario-dia">Sábado, Domingo e Feriados</span>
+                    <span>Fechado</span>
+                </div>
+            </div>
+            
+            <!-- Mapa (Google Maps embed) -->
+            <div class="mapa-container">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3130.1879637921866!2d-46.52359292545939!3d-21.36680608465349!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94b63fbb0d5f4ff5%3A0x5b5ffde06be58161!2sMuseu%20Municipal%20Francisco%20Leonardo%20Ceravolo!5e1!3m2!1spt-BR!2sbr!4v1754180168159!5m2!1spt-BR!2sbr" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('contato-form');
+    const btnEnviar = document.getElementById('btn-enviar');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const sendIcon = document.getElementById('send-icon');
+    const btnText = document.getElementById('btn-text');
+    
+    form.addEventListener('submit', function(e) {
+        // Desabilitar botão e mostrar loading
+        btnEnviar.disabled = true;
+        loadingSpinner.style.display = 'block';
+        sendIcon.style.display = 'none';
+        btnText.textContent = 'Enviando...';
+    });
+    
+    // Máscara para telefone
+    const telefoneInput = document.getElementById('telefone');
+    telefoneInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 11) {
+            value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        } else if (value.length >= 7) {
+            value = value.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+        } else if (value.length >= 3) {
+            value = value.replace(/(\d{2})(\d{0,5})/, '($1) $2');
+        }
+        e.target.value = value;
+    });
+});
+</script>
+{% endblock %}

@@ -5,13 +5,13 @@ from django.core.exceptions import ValidationError
 
 
 class Categoria(models.Model):
-    """Model representing categories for museum items and documents."""
+    """Categorias para itens do patrimônio histórico da cidade."""
     
     nome = models.CharField(
         max_length=100,
         unique=True,
         verbose_name="Nome da Categoria",
-        help_text="Nome da categoria do item"
+        help_text="Nome da categoria do patrimônio"
     )
     descricao = models.TextField(
         verbose_name="Descrição da Categoria",
@@ -28,16 +28,16 @@ class Categoria(models.Model):
     )
 
     class Meta:
-        verbose_name = "Categoria"
-        verbose_name_plural = "Categorias"
+        verbose_name = "Categoria de Patrimônio"
+        verbose_name_plural = "Categorias de Patrimônio"
         ordering = ['nome']
 
     def __str__(self):
         return self.nome
 
 
-class ItemAcervo(models.Model):
-    """Model representing items in the museum collection."""
+class ItemPatrimonio(models.Model):
+    """Itens do patrimônio histórico de Muzambinho - edificações, locais históricos, etc."""
     
     STATUS_CHOICES = [
         ('ativo', 'Ativo'),
@@ -56,19 +56,19 @@ class ItemAcervo(models.Model):
 
     nome = models.CharField(
         max_length=255,
-        verbose_name="Nome do Item",
-        help_text="Nome do item do acervo"
+        verbose_name="Nome do Item Patrimonial",
+        help_text="Nome do item do patrimônio histórico"
     )
     categoria = models.ForeignKey(
         Categoria,
         on_delete=models.PROTECT,
-        related_name="itens_acervo",
+        related_name="itens_patrimonio",
         verbose_name="Categoria",
-        help_text="Categoria do item do acervo"
+        help_text="Categoria do item patrimonial"
     )
     descricao = models.TextField(
         verbose_name="Descrição",
-        help_text="Descrição detalhada do item do acervo"
+        help_text="Descrição detalhada do item patrimonial"
     )
     origem = models.CharField(
         max_length=255,
@@ -85,7 +85,7 @@ class ItemAcervo(models.Model):
         max_length=50,
         unique=True,
         verbose_name="Número de Registro",
-        help_text="Número único de registro do item no acervo"
+        help_text="Número único de registro do item patrimonial"
     )
     estado_conservacao = models.CharField(
         max_length=15,
@@ -103,7 +103,7 @@ class ItemAcervo(models.Model):
         max_length=100,
         blank=True,
         verbose_name="Localização Física",
-        help_text="Local físico onde o item está armazenado"
+        help_text="Endereço ou local físico onde o patrimônio está localizado"
     )
     valor_estimado = models.DecimalField(
         max_digits=10,
@@ -111,24 +111,31 @@ class ItemAcervo(models.Model):
         null=True,
         blank=True,
         verbose_name="Valor Estimado",
-        help_text="Valor estimado do item (opcional)"
+        help_text="Valor estimado do patrimônio (opcional)"
+    )
+    modelo_3d = models.FileField(
+        upload_to='modelos_3d/',
+        blank=True,
+        null=True,
+        verbose_name="Modelo 3D",
+        help_text="Arquivo do modelo 3D (.glb, .gltf, .obj)"
     )
     data_adicao = models.DateTimeField(
         auto_now_add=True,
         verbose_name="Data de Adição",
-        help_text="Data em que o item foi adicionado ao acervo"
+        help_text="Data em que o item foi adicionado ao sistema"
     )
     usuario_adicionado = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
-        related_name="itens_adicionados",
+        related_name="itens_patrimonio_adicionados",
         verbose_name="Usuário que Adicionou",
-        help_text="Usuário que adicionou o item ao acervo"
+        help_text="Usuário que adicionou o item patrimonial"
     )
 
     class Meta:
-        verbose_name = "Item do Acervo"
-        verbose_name_plural = "Itens do Acervo"
+        verbose_name = "Item do Patrimônio"
+        verbose_name_plural = "Itens do Patrimônio"
         ordering = ['nome']
 
     def __str__(self):
@@ -142,20 +149,20 @@ class ItemAcervo(models.Model):
             )
 
 
-class ImagemItemAcervo(models.Model):
-    """Model representing images of collection items."""
+class ImagemItemPatrimonio(models.Model):
+    """Imagens dos itens do patrimônio histórico."""
     
-    item_acervo = models.ForeignKey(
-        ItemAcervo,
+    item_patrimonio = models.ForeignKey(
+        ItemPatrimonio,
         on_delete=models.CASCADE,
         related_name="imagens",
-        verbose_name="Item do Acervo",
-        help_text="Item do acervo relacionado à imagem"
+        verbose_name="Item do Patrimônio",
+        help_text="Item do patrimônio relacionado à imagem"
     )
     imagem = models.ImageField(
-        upload_to='imagens_acervo/',
+        upload_to='imagens_patrimonio/',
         verbose_name="Imagem",
-        help_text="Imagem do item do acervo"
+        help_text="Imagem do item patrimonial"
     )
     legenda = models.CharField(
         max_length=255,
@@ -174,12 +181,12 @@ class ImagemItemAcervo(models.Model):
     )
 
     class Meta:
-        verbose_name = "Imagem do Item do Acervo"
-        verbose_name_plural = "Imagens dos Itens do Acervo"
-        ordering = ['item_acervo__nome', '-eh_principal', 'data_upload']
+        verbose_name = "Imagem do Item do Patrimônio"
+        verbose_name_plural = "Imagens dos Itens do Patrimônio"
+        ordering = ['item_patrimonio__nome', '-eh_principal', 'data_upload']
 
     def __str__(self):
-        return f"Imagem de {self.item_acervo.nome}"
+        return f"Imagem de {self.item_patrimonio.nome}"
 
 
 class Patrimonio(models.Model):

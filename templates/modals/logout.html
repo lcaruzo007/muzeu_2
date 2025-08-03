@@ -1,0 +1,21 @@
+<!-- Modal de Logout -->
+<div id="logoutModal" class="modal-overlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 class="modal-title">Confirmar Saída</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+            <p>Tem certeza que deseja sair do sistema?</p>
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline modal-close">Cancelar</button>
+            <form method="POST" action="{% url 'admin:logout' %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Sair</button>
+            </form>
+        </div>
+    </div>
+</div>
